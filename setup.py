@@ -17,5 +17,5 @@ setup(
     author='Alán Aspuru-Guzik',
     author_email='alan@aspuru.com',
     description='Variational autoencoder for use with molecular SMILES, as described in  https://arxiv.org/pdf/1610.02415.pdf',
-    install_requires=['keras<=2.0.7'],
+    install_requires=['keras>=2.0.7'],
 )
