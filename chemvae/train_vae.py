@@ -36,9 +36,9 @@ if gpus:
 import yaml
 import time
 import os
-from tf.keras import backend as K # changing to tf.keras because of version 2.x
-from tf.keras.models import Model
-from tf.keras.optimizers import SGD, Adam, RMSprop
+from tensorflow.keras import backend as K # changing to tf.keras because of version 2.x
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from . import hyperparameters
 from . import mol_utils as mu
 from . import mol_callbacks as mol_cb
