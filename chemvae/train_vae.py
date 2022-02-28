@@ -14,9 +14,25 @@ encoder and decoder portions of the network
 import argparse
 import numpy as np
 import tensorflow as tf
-config = tf.ConfigProto()
+
+# TF V1.x syntax:
+'''
+tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
 config.gpu_options.allow_growth = True
+'''
+
+# TF V2.x syntax:
+# Allowing memory growth for all allocated GPUs while running in TF V2.x
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+  try:
+    for gpu in gpus:
+      tf.config.experimental.set_memory_growth(gpu, True)
+      tf.config.set_logical_device_configuration(gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=16384))
+  except RuntimeError as e:
+    print(e)
+
 import yaml
 import time
 import os
