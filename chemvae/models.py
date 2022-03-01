@@ -1,12 +1,12 @@
-from keras.layers import Input, Lambda
-from keras.layers.core import Dense, Flatten, RepeatVector, Dropout
-from keras.layers.convolutional import Convolution1D
-from keras.layers.recurrent import GRU
-from keras.layers.normalization import BatchNormalization
-from keras.models import load_model
-from keras import backend as K
-from keras.models import Model
-from keras.layers.merge import Concatenate
+from tensorflow.keras.layers import InputLayer, Lambda
+from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
+from tensorflow.keras.layers import Conv1D #
+from tensorflow.keras.layers import GRU
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Concatenate
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
 from .tgru_k2_gpu import TerminalGRU
 
 
@@ -15,11 +15,11 @@ from .tgru_k2_gpu import TerminalGRU
 # =============================
 def encoder_model(params):
     # K_params is dictionary of keras variables
-    x_in = Input(shape=(params['MAX_LEN'], params[
+    x_in = InputLayer(shape=(params['MAX_LEN'], params[
         'NCHARS']), name='input_molecule_smi')
 
     # Convolution layers
-    x = Convolution1D(int(params['conv_dim_depth'] *
+    x = Conv1D(int(params['conv_dim_depth'] *
                           params['conv_d_growth_factor']),
                       int(params['conv_dim_width'] *
                           params['conv_w_growth_factor']),
@@ -29,7 +29,7 @@ def encoder_model(params):
         x = BatchNormalization(axis=-1, name="encoder_norm0")(x)
 
     for j in range(1, params['conv_depth'] - 1):
-        x = Convolution1D(int(params['conv_dim_depth'] *
+        x = Conv1D(int(params['conv_dim_depth'] *
                               params['conv_d_growth_factor'] ** (j)),
                           int(params['conv_dim_width'] *
                               params['conv_w_growth_factor'] ** (j)),
@@ -85,8 +85,8 @@ def load_encoder(params):
 
 
 def decoder_model(params):
-    z_in = Input(shape=(params['hidden_dim'],), name='decoder_input')
-    true_seq_in = Input(shape=(params['MAX_LEN'], params['NCHARS']),
+    z_in = InputLayer(shape=(params['hidden_dim'],), name='decoder_input')
+    true_seq_in = InputLayer(shape=(params['MAX_LEN'], params['NCHARS']),
                         name='decoder_true_seq_input')
 
     z = Dense(int(params['hidden_dim']),
@@ -212,7 +212,7 @@ def property_predictor_model(params):
     if ('reg_prop_tasks' not in params) and ('logit_prop_tasks' not in params):
         raise ValueError('You must specify either regression tasks and/or logistic tasks for property prediction')
 
-    ls_in = Input(shape=(params['hidden_dim'],), name='prop_pred_input')
+    ls_in = InputLayer(shape=(params['hidden_dim'],), name='prop_pred_input')
 
     prop_mid = Dense(params['prop_hidden_dim'],
                      activation=params['prop_pred_activation'])(ls_in)
