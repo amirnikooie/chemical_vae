@@ -61,9 +61,9 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
-from keras.layers.recurrent import GRU
-from keras import backend as K
-from keras.engine import InputSpec
+from tensorflow.keras.layers import GRU
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import InputSpec
 import numpy as np
 
 if K.backend() == 'tensorflow':
