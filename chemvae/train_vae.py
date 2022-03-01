@@ -42,14 +42,13 @@ from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from . import hyperparameters
 from . import mol_utils as mu
 from . import mol_callbacks as mol_cb
-from keras.callbacks import CSVLogger
+from tensorflow.keras.callbacks import CSVLogger
 from .models import encoder_model, load_encoder
 from .models import decoder_model, load_decoder
 from .models import property_predictor_model, load_property_predictor
 from .models import variational_layers
 from functools import partial
-from keras.layers import Lambda
-
+from tensorflow.keras.layers import Lambda
 
 
 def vectorize_data(params):
