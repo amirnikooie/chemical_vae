@@ -130,7 +130,7 @@ def decoder_model(params):
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
                                 return_sequences=True,
-                                activation='softmax',
+                                activation='tanh', #########********
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
