@@ -158,7 +158,7 @@ class Recurrent2(Layer):
         self.input_length = input_length
         if self.input_dim:
             kwargs['input_shape'] = (self.input_length, self.input_dim)
-        super(Recurrent, self).__init__(**kwargs)
+        super(Recurrent2, self).__init__(**kwargs)
 
     def get_output_shape_for(self, input_shape):
         if self.return_sequences:
@@ -292,7 +292,7 @@ class GRU2(Recurrent2):
 
         if self.dropout_W or self.dropout_U:
             self.uses_learning_phase = True
-        super(GRU, self).__init__(**kwargs)
+        super(GRU2, self).__init__(**kwargs)
 
     def build(self, input_shape):
         self.input_spec = [InputSpec(shape=input_shape)]
