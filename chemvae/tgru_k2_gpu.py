@@ -61,7 +61,7 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
-from .my_gru import GRU
+from .my_gru import GRU2
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import InputSpec
 import numpy as np
@@ -72,7 +72,7 @@ else:
 
     raise NotImplemented("Backend not implemented")
 
-class TerminalGRU(GRU):
+class TerminalGRU(GRU2):
     # Heavily adapted from GRU in recurrent.py
     # Implements professor forcing
 

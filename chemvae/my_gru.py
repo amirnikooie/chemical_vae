@@ -35,7 +35,7 @@ def time_distributed_dense(x, w, b=None, dropout=None,
         x = K.reshape(x, (-1, timesteps, output_dim))
     return x
 
-class Recurrent(Layer):
+class Recurrent2(Layer):
     '''Abstract base class for recurrent layers.
     Do not use in a model -- it's not a valid layer!
     Use its children classes `LSTM`, `GRU` and `SimpleRNN` instead.
@@ -248,7 +248,7 @@ class Recurrent(Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-class GRU(Recurrent):
+class GRU2(Recurrent2):
     '''Gated Recurrent Unit - Cho et al. 2014.
 
     # Arguments
