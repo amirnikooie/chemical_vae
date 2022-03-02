@@ -138,7 +138,7 @@ class TerminalGRU(GRU):
             # initial states: all-zero tensor of shape (output_dim)
             self.states = [None]
 
-        if self.consume_less == 'gpu':
+        if 0 > 1: # self.consume_less == 'gpu': (This is because no GPU for here)
 
             self.W = self.init((self.input_dim, 3 * self.output_dim),
                                name='{}_W'.format(self.name))
@@ -290,7 +290,7 @@ class TerminalGRU(GRU):
         return constants
 
     def preprocess_input(self, x): #
-        if 0 > 1: #self.consume_less == 'cpu':
+        if 0 < 1: #self.consume_less == 'cpu':
             input_shape = self.input_spec[0].shape
             input_dim = input_shape[2]
             timesteps = input_shape[1]
