@@ -125,6 +125,8 @@ class TerminalGRU(GRU):
                            InputSpec(ndim=3)]
 
     def build(self, input_shape):
+        if isinstance(input_shape, list):
+            input_shape = input_shape[0]
 
 #=========== Copy from old code just to have W_z, U_z, etc. properties ===========
         self.input_spec = [InputSpec(shape=input_shape)]
@@ -197,8 +199,6 @@ class TerminalGRU(GRU):
 
 
         # all of this is copied from GRU, except for one part commented below
-        if isinstance(input_shape, list):
-            input_shape = input_shape[0]
 
         batch_size = input_shape[0] if self.stateful else None
         self.input_dim = input_shape[2]
