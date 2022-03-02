@@ -187,8 +187,8 @@ class TerminalGRU(GRU):
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
         return constants
 
-    def preprocess_input(self, x): # copied from https://github.com/GeekLiB/keras/blob/master/keras/layers/recurrent.py (I think it is like the get_constant function above)
-        if self.consume_less == 'cpu':
+    def preprocess_input(self, x): #
+        if 0 < 1: #self.consume_less == 'cpu':
             input_shape = self.input_spec[0].shape
             input_dim = input_shape[2]
             timesteps = input_shape[1]
