@@ -61,7 +61,7 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
-from my_gru import GRU
+from .my_gru import GRU
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import InputSpec
 import numpy as np
