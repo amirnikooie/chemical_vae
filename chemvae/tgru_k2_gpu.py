@@ -61,6 +61,37 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
+def time_distributed_dense(x, w, b=None, dropout=None,
+                           input_dim=None, output_dim=None, timesteps=None):
+    '''Apply y.w + b for every temporal slice y of x.
+    '''
+    if not input_dim:
+        input_dim = K.shape(x)[2]
+    if not timesteps:
+        timesteps = K.shape(x)[1]
+    if not output_dim:
+        output_dim = K.shape(w)[1]
+
+    if dropout is not None and 0. < dropout < 1.:
+        # apply the same dropout pattern at every timestep
+        ones = K.ones_like(K.reshape(x[:, 0, :], (-1, input_dim)))
+        dropout_matrix = K.dropout(ones, dropout)
+        expanded_dropout_matrix = K.repeat(dropout_matrix, timesteps)
+        x = K.in_train_phase(x * expanded_dropout_matrix, x)
+
+    # collapse time dimension and batch dimension together
+    x = K.reshape(x, (-1, input_dim))
+    x = K.dot(x, w)
+    if b:
+        x = x + b
+    # reshape to 3D tensor
+    if K.backend() == 'tensorflow':
+        x = K.reshape(x, K.pack([-1, timesteps, output_dim]))
+        x.set_shape([None, None, output_dim])
+    else:
+        x = K.reshape(x, (-1, timesteps, output_dim))
+    return x
+
 #from .my_gru import GRU2
 from tensorflow.keras.layers import GRU
 from tensorflow.keras import backend as K
@@ -94,6 +125,77 @@ class TerminalGRU(GRU):
                            InputSpec(ndim=3)]
 
     def build(self, input_shape):
+
+#=========== Copy from old code just to have W_z, U_z, etc. properties ===========
+        self.input_spec = [InputSpec(shape=input_shape)]
+        self.input_dim = input_shape[2]
+
+        if self.stateful:
+            self.reset_states()
+        else:
+            # initial states: all-zero tensor of shape (output_dim)
+            self.states = [None]
+
+        if self.consume_less == 'gpu':
+
+            self.W = self.init((self.input_dim, 3 * self.output_dim),
+                               name='{}_W'.format(self.name))
+            self.U = self.inner_init((self.output_dim, 3 * self.output_dim),
+                                     name='{}_U'.format(self.name))
+
+            self.b = K.variable(np.hstack((np.zeros(self.output_dim),
+                                           np.zeros(self.output_dim),
+                                           np.zeros(self.output_dim))),
+                                name='{}_b'.format(self.name))
+
+            self.trainable_weights = [self.W, self.U, self.b]
+        else:
+
+            self.W_z = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_z'.format(self.name))
+            self.U_z = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_z'.format(self.name))
+            self.b_z = K.zeros((self.output_dim,), name='{}_b_z'.format(self.name))
+
+            self.W_r = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_r'.format(self.name))
+            self.U_r = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_r'.format(self.name))
+            self.b_r = K.zeros((self.output_dim,), name='{}_b_r'.format(self.name))
+
+            self.W_h = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_h'.format(self.name))
+            self.U_h = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_h'.format(self.name))
+            self.b_h = K.zeros((self.output_dim,), name='{}_b_h'.format(self.name))
+
+            self.trainable_weights = [self.W_z, self.U_z, self.b_z,
+                                      self.W_r, self.U_r, self.b_r,
+                                      self.W_h, self.U_h, self.b_h]
+
+            self.W = K.concatenate([self.W_z, self.W_r, self.W_h])
+            self.U = K.concatenate([self.U_z, self.U_r, self.U_h])
+            self.b = K.concatenate([self.b_z, self.b_r, self.b_h])
+
+        self.regularizers = []
+        if self.W_regularizer:
+            self.W_regularizer.set_param(self.W)
+            self.regularizers.append(self.W_regularizer)
+        if self.U_regularizer:
+            self.U_regularizer.set_param(self.U)
+            self.regularizers.append(self.U_regularizer)
+        if self.b_regularizer:
+            self.b_regularizer.set_param(self.b)
+            self.regularizers.append(self.b_regularizer)
+
+        if self.initial_weights is not None:
+            self.set_weights(self.initial_weights)
+            del self.initial_weights
+        self.built = True
+#=========== End of copy from old code just to have W_z, U_z, etc. properties ===========
+#=== Back to original tgru code to replace what should be replaced.
+
+
         # all of this is copied from GRU, except for one part commented below
         if isinstance(input_shape, list):
             input_shape = input_shape[0]
