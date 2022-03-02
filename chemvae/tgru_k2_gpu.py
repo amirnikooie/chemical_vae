@@ -187,6 +187,22 @@ class TerminalGRU(GRU):
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
         return constants
 
+    def preprocess_input(self, x): # copied from https://github.com/GeekLiB/keras/blob/master/keras/layers/recurrent.py (I think it is like the get_constant function above)
+        if self.consume_less == 'cpu':
+            input_shape = self.input_spec[0].shape
+            input_dim = input_shape[2]
+            timesteps = input_shape[1]
+
+            x_z = time_distributed_dense(x, self.W_z, self.b_z, self.dropout_W,
+                                         input_dim, self.output_dim, timesteps)
+            x_r = time_distributed_dense(x, self.W_r, self.b_r, self.dropout_W,
+                                         input_dim, self.output_dim, timesteps)
+            x_h = time_distributed_dense(x, self.W_h, self.b_h, self.dropout_W,
+                                         input_dim, self.output_dim, timesteps)
+            return K.concatenate([x_z, x_r, x_h], axis=2)
+        else:
+            return x
+
     def call(self, inputs, mask=None):
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
