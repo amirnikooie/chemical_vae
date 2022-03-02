@@ -61,7 +61,7 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
-from tensorflow.keras.layers import GRU
+from my_gru import GRU
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import InputSpec
 import numpy as np
@@ -71,38 +71,6 @@ if K.backend() == 'tensorflow':
 else:
 
     raise NotImplemented("Backend not implemented")
-
-
-def time_distributed_dense(x, w, b=None, dropout=None,
-                           input_dim=None, output_dim=None, timesteps=None):
-    '''Apply y.w + b for every temporal slice y of x.
-    '''
-    if not input_dim:
-        input_dim = K.shape(x)[2]
-    if not timesteps:
-        timesteps = K.shape(x)[1]
-    if not output_dim:
-        output_dim = K.shape(w)[1]
-
-    if dropout is not None and 0. < dropout < 1.:
-        # apply the same dropout pattern at every timestep
-        ones = K.ones_like(K.reshape(x[:, 0, :], (-1, input_dim)))
-        dropout_matrix = K.dropout(ones, dropout)
-        expanded_dropout_matrix = K.repeat(dropout_matrix, timesteps)
-        x = K.in_train_phase(x * expanded_dropout_matrix, x)
-
-    # collapse time dimension and batch dimension together
-    x = K.reshape(x, (-1, input_dim))
-    x = K.dot(x, w)
-    if b:
-        x = x + b
-    # reshape to 3D tensor
-    if K.backend() == 'tensorflow':
-        x = K.reshape(x, K.pack([-1, timesteps, output_dim]))
-        x.set_shape([None, None, output_dim])
-    else:
-        x = K.reshape(x, (-1, timesteps, output_dim))
-    return x
 
 class TerminalGRU(GRU):
     # Heavily adapted from GRU in recurrent.py
