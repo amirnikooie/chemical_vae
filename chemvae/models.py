@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
 from tensorflow.keras.layers import Conv1D #
 from tensorflow.keras.layers import GRU
@@ -163,7 +164,8 @@ def decoder_model(params):
 
 def load_decoder(params):
     if params['do_tgru']:
-        return load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU})
+        tf.compat.v1.disable_v2_behavior() # model trained in tf1
+        return tf.compat.v1.keras.models.load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU})
     else:
         return load_model(params['decoder_weights_file'])
 
