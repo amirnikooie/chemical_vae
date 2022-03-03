@@ -134,6 +134,7 @@ class TerminalGRU(GRU):
         self.init = initializers.get('glorot_uniform')
         self.inner_init = initializers.get('orthogonal')
         self.output_dim = units
+        self.implementation = 0
 
     def build(self, input_shape):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
@@ -161,6 +162,7 @@ class TerminalGRU(GRU):
         self.b_h = K.zeros((self.output_dim,))#, name='{}_b_h'.format(self.name)
         self.dropout_W = 0
 
+        '''
         self.kernel = self.add_weight(
             shape=(self.input_dim, self._units * 3),
             name='kernel',
@@ -192,16 +194,16 @@ class TerminalGRU(GRU):
         else:
             self.bias = None
         self.built = True
-
+        '''
     ''' # Original build function based on Keras 2.0.7
     def build(self, input_shape):
         if isinstance(input_shape, list):
             input_shape = input_shape[0]
-
+    '''
         # all of this is copied from GRU, except for one part commented below
 
         batch_size = input_shape[0] if self.stateful else None
-        self.input_dim = input_shape[2]
+        #self.input_dim = input_shape[2]
         self.input_spec = [InputSpec(shape=(batch_size, None, self.input_dim)),
                            InputSpec(shape=(batch_size, None, self._units))]
         self.state_spec = InputSpec(shape=(batch_size, self._units))
@@ -255,7 +257,7 @@ class TerminalGRU(GRU):
             self.bias_r = None
             self.bias_h = None
         self.built = True
-    '''
+    
     def get_initial_states(self, x):
         # build an all-zero tensor of shape [(samples, output_dim), (samples, output_dim)]
         initial_state = K.zeros_like(x)  # (samples, timesteps, input_dim)
@@ -455,7 +457,7 @@ class TerminalGRU(GRU):
                 x_r = prev_layer_input[0, :, self._units: 2 * self._units]
                 x_h = prev_layer_input[0, :, 2 * self._units:]
             else:
-                raise ValueError('Implementation type ' + self.implementation + ' is invalid')
+                raise ValueError('Implementation type ' + str(self.implementation) + ' is invalid')
 
             z = self.recurrent_activation(x_z + K.dot(h_tm1 * rec_dp_mask[0],
                                                       self.recurrent_kernel_z))
