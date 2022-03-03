@@ -166,7 +166,7 @@ def decoder_model(params):
 def load_decoder(params):
     if params['do_tgru']:
         tf.compat.v1.disable_v2_behavior() # model trained in tf1
-        return tf.compat.v1.keras.models.load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU})
+        return tf.compat.v1.keras.models.load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU, 'use_bias': False})
     else:
         return load_model(params['decoder_weights_file'])
 

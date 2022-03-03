@@ -129,7 +129,6 @@ class TerminalGRU(GRU):
         self._recurrent_dropout = min(1., max(0., recurrent_dropout))
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
-        self._use_bias = False
 
         self.init = initializers.get('glorot_uniform')
         self.inner_init = initializers.get('orthogonal')
