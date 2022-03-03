@@ -83,8 +83,7 @@ def time_distributed_dense(x, w, b=None, dropout=None,
     # collapse time dimension and batch dimension together
     x = K.reshape(x, (-1, input_dim))
     x = K.dot(x, w)
-    bb = tf.cast(b, tf.bool)
-    if bb:
+    if b is not None:
         x = x + b
     # reshape to 3D tensor
     if K.backend() == 'tensorflow':
