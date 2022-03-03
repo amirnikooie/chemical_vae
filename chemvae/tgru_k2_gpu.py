@@ -128,8 +128,8 @@ class TerminalGRU(GRU):
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
 
-        self.init = initializers.get(self.kernel_initializer)
-        self.inner_init = initializers.get(self.recurrent_initializer)
+        self.init = initializers.get('glorot_uniform')
+        self.inner_init = initializers.get('glorot_uniform')
         self.output_dim = units
 
     def build(self, input_shape):
