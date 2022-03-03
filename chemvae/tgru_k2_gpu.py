@@ -62,6 +62,7 @@ self.implementation ==0 : cpu
 
 '''
 
+##### I'm sticking with CPU and thus the original code. For fully adapting v2 and gpu I will not use this code and probably move to LSTM or Attention based anywayself.
 def time_distributed_dense(x, w, b=None, dropout=None,
                            input_dim=None, output_dim=None, timesteps=None):
     '''Apply y.w + b for every temporal slice y of x.
@@ -337,9 +338,9 @@ class TerminalGRU(GRU):
 
         ## concatenate to have same dimension as preprocessed inputs 3xoutput_dim
         # only for self.implementation = 0?
-        # shifted_raw_inputs = K.concatenate([shifted_raw_inputs,
-        #                                    shifted_raw_inputs,
-        #                                    shifted_raw_inputs], axis=2)
+        shifted_raw_inputs = K.concatenate([shifted_raw_inputs,
+                                            shifted_raw_inputs,
+                                            shifted_raw_inputs], axis=2)
 
         all_inputs = K.stack([preprocessed_input, shifted_raw_inputs])
         num_dim = K.ndim(all_inputs)
