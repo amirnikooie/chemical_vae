@@ -130,6 +130,7 @@ class TerminalGRU(GRU):
 
         self.init = initializers.get(self.kernel_initializer)
         self.inner_init = initializers.get(self.recurrent_initializer)
+        self.output_dim = units
 
     def build(self, input_shape):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
