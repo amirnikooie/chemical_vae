@@ -92,16 +92,14 @@ class TerminalGRU(GRU):
         self._recurrent_dropout = min(1., max(0., recurrent_dropout))
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
-        input_shape = self.input_spec[0].shape
-        self.input_dim =input_shape[-1]
 
     def build(self, input_shape):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
             input_shape = input_shape[0]
         # self.units also changed to self._units
-        input_dim = input_shape[-1]
+        self.input_dim = input_shape[-1]
         self.kernel = self.add_weight(
-            shape=(input_dim, self._units * 3),
+            shape=(self.input_dim, self._units * 3),
             name='kernel',
             initializer=self.kernel_initializer,
             regularizer=self.kernel_regularizer,
