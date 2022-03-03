@@ -97,7 +97,7 @@ class TerminalGRU(GRU):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
             input_shape = input_shape[0]
         # self.units also changed to self._units
-        input_dim = input_shape[-1]
+        self.input_dim = input_shape[-1]
         self.kernel = self.add_weight(
             shape=(input_dim, self._units * 3),
             name='kernel',
