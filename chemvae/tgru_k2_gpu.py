@@ -195,11 +195,7 @@ class TerminalGRU(GRU):
             self.bias = None
         self.built = True
         '''
-    ''' # Original build function based on Keras 2.0.7
-    def build(self, input_shape):
-        if isinstance(input_shape, list):
-            input_shape = input_shape[0]
-    '''
+        
         # all of this is copied from GRU, except for one part commented below
 
         batch_size = input_shape[0] if self.stateful else None
@@ -257,7 +253,7 @@ class TerminalGRU(GRU):
             self.bias_r = None
             self.bias_h = None
         self.built = True
-    
+
     def get_initial_states(self, x):
         # build an all-zero tensor of shape [(samples, output_dim), (samples, output_dim)]
         initial_state = K.zeros_like(x)  # (samples, timesteps, input_dim)
