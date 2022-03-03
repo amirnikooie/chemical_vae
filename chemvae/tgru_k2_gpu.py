@@ -128,6 +128,7 @@ class TerminalGRU(GRU):
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
 
+
         self.init = initializers.get('glorot_uniform')
         self.inner_init = initializers.get('orthogonal')
         self.output_dim = units
@@ -137,6 +138,7 @@ class TerminalGRU(GRU):
             input_shape = input_shape[0]
         # self.units also changed to self._units
         self.input_dim = input_shape[-1]
+        self.time_step = input_shape[1]
 
         self.W_z = self.init((self.input_dim, self.output_dim))#,
 #                                 name='{}_W_z'.format(self.name))
@@ -286,9 +288,9 @@ class TerminalGRU(GRU):
 
     def preprocess_input(self, x): #
         if 0 < 1 : #self.consume_less == 'cpu':
-            input_shape = self.input_spec[0].shape
-            input_dim = input_shape[2]
-            timesteps = input_shape[1]
+            #input_shape = self.input_spec[0].shape
+            input_dim = self.input_dim#input_shape[2]
+            timesteps = self.time_step#input_shape[1]
 
             x_z = time_distributed_dense(x, self.W_z, self.b_z, self.dropout_W,
                                          input_dim, self.output_dim, timesteps)
