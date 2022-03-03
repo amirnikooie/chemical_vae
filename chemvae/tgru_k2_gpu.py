@@ -156,7 +156,8 @@ class TerminalGRU(GRU):
 #                                 name='{}_W_h'.format(self.name))
         self.U_h = self.inner_init((self.output_dim, self.output_dim))#,
 #                                       name='{}_U_h'.format(self.name))
-        self.b_h = K.zeros((self.output_dim,))#, name='{}_b_h'.format(self.name))
+        self.b_h = K.zeros((self.output_dim,))#, name='{}_b_h'.format(self.name)
+        self.dropout_W = 0
 
         self.kernel = self.add_weight(
             shape=(self.input_dim, self._units * 3),
