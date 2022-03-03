@@ -83,7 +83,8 @@ def time_distributed_dense(x, w, b=None, dropout=None,
     # collapse time dimension and batch dimension together
     x = K.reshape(x, (-1, input_dim))
     x = K.dot(x, w)
-    if b:
+    bb = tf.cast(b, tf.bool)
+    if bb:
         x = x + b
     # reshape to 3D tensor
     if K.backend() == 'tensorflow':
@@ -96,6 +97,7 @@ def time_distributed_dense(x, w, b=None, dropout=None,
 
 
 #from .my_gru import GRU2
+import tensorflow as tf
 from tensorflow.keras.layers import GRU
 from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
