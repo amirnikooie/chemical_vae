@@ -1,4 +1,4 @@
-self._use_bias'''
+'''
 A GRU layer capable of teacher forcing at train time, and sampling from a softmax at test time.
 
 # Example of use:
