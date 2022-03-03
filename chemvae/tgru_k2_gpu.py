@@ -338,10 +338,11 @@ class TerminalGRU(GRU):
 
         ## concatenate to have same dimension as preprocessed inputs 3xoutput_dim
         # only for self.implementation = 0?
+'''
         shifted_raw_inputs = K.concatenate([shifted_raw_inputs,
                                             shifted_raw_inputs,
                                             shifted_raw_inputs], axis=2)
-
+'''
         all_inputs = K.stack([preprocessed_input, shifted_raw_inputs])
         num_dim = K.ndim(all_inputs)
         axes = [1, 2, 0] + list(range(3, num_dim))
