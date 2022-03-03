@@ -61,9 +61,44 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
+
+def time_distributed_dense(x, w, b=None, dropout=None,
+                           input_dim=None, output_dim=None, timesteps=None):
+    '''Apply y.w + b for every temporal slice y of x.
+    '''
+    if not input_dim:
+        input_dim = K.shape(x)[2]
+    if not timesteps:
+        timesteps = K.shape(x)[1]
+    if not output_dim:
+        output_dim = K.shape(w)[1]
+
+    if dropout is not None and 0. < dropout < 1.:
+        # apply the same dropout pattern at every timestep
+        ones = K.ones_like(K.reshape(x[:, 0, :], (-1, input_dim)))
+        dropout_matrix = K.dropout(ones, dropout)
+        expanded_dropout_matrix = K.repeat(dropout_matrix, timesteps)
+        x = K.in_train_phase(x * expanded_dropout_matrix, x)
+
+    # collapse time dimension and batch dimension together
+    x = K.reshape(x, (-1, input_dim))
+    x = K.dot(x, w)
+    if b:
+        x = x + b
+    # reshape to 3D tensor
+    if K.backend() == 'tensorflow':
+        x = K.reshape(x, K.pack([-1, timesteps, output_dim]))
+        x.set_shape([None, None, output_dim])
+    else:
+        x = K.reshape(x, (-1, timesteps, output_dim))
+    return x
+
+
+
 #from .my_gru import GRU2
 from tensorflow.keras.layers import GRU
 from tensorflow.keras import backend as K
+from tensorflow.keras import initializers
 from tensorflow.keras.layers import InputSpec
 import numpy as np
 
@@ -93,11 +128,33 @@ class TerminalGRU(GRU):
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
 
+        self.init = initializers.get(self.kernel_initializer)
+        self.inner_init = initializers.get(self.recurrent_initializer)
+
     def build(self, input_shape):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
             input_shape = input_shape[0]
         # self.units also changed to self._units
         self.input_dim = input_shape[-1]
+
+        self.W_z = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_z'.format(self.name))
+        self.U_z = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_z'.format(self.name))
+        self.b_z = K.zeros((self.output_dim,), name='{}_b_z'.format(self.name))
+
+        self.W_r = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_r'.format(self.name))
+        self.U_r = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_r'.format(self.name))
+        self.b_r = K.zeros((self.output_dim,), name='{}_b_r'.format(self.name))
+
+        self.W_h = self.init((self.input_dim, self.output_dim),
+                                 name='{}_W_h'.format(self.name))
+        self.U_h = self.inner_init((self.output_dim, self.output_dim),
+                                       name='{}_U_h'.format(self.name))
+        self.b_h = K.zeros((self.output_dim,), name='{}_b_h'.format(self.name))
+
         self.kernel = self.add_weight(
             shape=(self.input_dim, self._units * 3),
             name='kernel',
@@ -227,7 +284,7 @@ class TerminalGRU(GRU):
         return constants
 
     def preprocess_input(self, x): #
-        if 0 > 1 : #self.consume_less == 'cpu':
+        if 0 < 1 : #self.consume_less == 'cpu':
             input_shape = self.input_spec[0].shape
             input_dim = input_shape[2]
             timesteps = input_shape[1]
