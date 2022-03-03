@@ -98,22 +98,19 @@ class TerminalGRU(GRU):
             input_shape = input_shape[0]
         # self.units also changed to self._units
         input_dim = input_shape[-1]
-        default_caching_device = _caching_device(self)
         self.kernel = self.add_weight(
             shape=(input_dim, self._units * 3),
             name='kernel',
             initializer=self.kernel_initializer,
             regularizer=self.kernel_regularizer,
-            constraint=self.kernel_constraint,
-            caching_device=default_caching_device)
+            constraint=self.kernel_constraint)
 
         self.recurrent_kernel = self.add_weight(
             shape=(self._units, self._units * 4),
             name='recurrent_kernel',
             initializer=self.recurrent_initializer,
             regularizer=self.recurrent_regularizer,
-            constraint=self.recurrent_constraint,
-            caching_device=default_caching_device)
+            constraint=self.recurrent_constraint)
 
         if self.use_bias:
             if not self.reset_after:
