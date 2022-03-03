@@ -134,7 +134,6 @@ class TerminalGRU(GRU):
         self.init = initializers.get('glorot_uniform')
         self.inner_init = initializers.get('orthogonal')
         self.output_dim = units
-        self.implementation = 0
 
     def build(self, input_shape):
         if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
@@ -195,7 +194,7 @@ class TerminalGRU(GRU):
             self.bias = None
         self.built = True
         '''
-        
+
         # all of this is copied from GRU, except for one part commented below
 
         batch_size = input_shape[0] if self.stateful else None
@@ -448,7 +447,7 @@ class TerminalGRU(GRU):
             # this should correspond  to true input
             prev_sampled_output = true_input
 
-            if self.implementation == 0:
+            if self.implementation == 1:
                 x_z = prev_layer_input[0, :, :self._units]
                 x_r = prev_layer_input[0, :, self._units: 2 * self._units]
                 x_h = prev_layer_input[0, :, 2 * self._units:]
