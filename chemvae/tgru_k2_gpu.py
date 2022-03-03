@@ -1,4 +1,4 @@
-'''
+self._use_bias'''
 A GRU layer capable of teacher forcing at train time, and sampling from a softmax at test time.
 
 # Example of use:
@@ -130,6 +130,8 @@ class TerminalGRU(GRU):
         self.input_spec = [InputSpec(ndim=3),
                            InputSpec(ndim=3)]
 
+        self._use_bias = False
+
         self.init = initializers.get('glorot_uniform')
         self.inner_init = initializers.get('orthogonal')
         self.output_dim = units
@@ -175,7 +177,7 @@ class TerminalGRU(GRU):
             regularizer=self.recurrent_regularizer,
             constraint=self.recurrent_constraint)
 
-        if self.use_bias:
+        if self._use_bias:
             if not self.reset_after:
                 bias_shape = (3 * self._units,)
             else:
@@ -222,7 +224,7 @@ class TerminalGRU(GRU):
             regularizer=self.recurrent_regularizer,
             constraint=self.recurrent_constraint)
 
-        if self.use_bias:
+        if self._use_bias:
             self.bias = self.add_weight(shape=(self._units * 4,),
                                         name='bias',
                                         initializer='zero',
@@ -241,7 +243,7 @@ class TerminalGRU(GRU):
         self.recurrent_kernel_h = self.recurrent_kernel[:, self._units * 2:self._units * 3]
         self.recurrent_kernel_y = self.recurrent_kernel[:, self._units * 3:]
 
-        if self.use_bias:
+        if self._use_bias:
             self.bias_z = self.bias[:self._units]
             self.bias_r = self.bias[self._units: self._units * 2]
             self.bias_h = self.bias[self._units * 2: self._units * 3]
