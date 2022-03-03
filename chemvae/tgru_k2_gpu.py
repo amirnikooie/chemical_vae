@@ -125,8 +125,7 @@ class TerminalGRU(GRU):
                                     name='bias',
                                     initializer=self.bias_initializer,
                                     regularizer=self.bias_regularizer,
-                                    constraint=self.bias_constraint,
-                                    caching_device=default_caching_device)
+                                    constraint=self.bias_constraint)
         else:
             self.bias = None
         self.built = True
