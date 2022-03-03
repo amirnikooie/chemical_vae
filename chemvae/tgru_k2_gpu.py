@@ -129,7 +129,7 @@ class TerminalGRU(GRU):
                            InputSpec(ndim=3)]
 
         self.init = initializers.get('glorot_uniform')
-        self.inner_init = initializers.get('glorot_uniform')
+        self.inner_init = initializers.get('orthogonal')
         self.output_dim = units
 
     def build(self, input_shape):
