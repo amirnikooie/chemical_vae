@@ -96,7 +96,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
 
     num_samples = tf.shape(inputs)[1]
     output_dim = int(initial_states[0].get_shape()[-1])
-    random_cutoff_prob = tf.random_uniform(
+    random_cutoff_prob = tf.random.uniform(
         (num_samples,), minval=0., maxval=1.)
 
     # Ignore constants for the first run
@@ -127,7 +127,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
             Tuple: `(time + 1,output_ta_t) + tuple(new_states)`
         """
         current_input = input_ta.read(time)
-        random_cutoff_prob = tf.random_uniform(
+        random_cutoff_prob = tf.random.uniform(
             (num_samples,), minval=0, maxval=1)
 
         output, new_states = step_function(current_input,
