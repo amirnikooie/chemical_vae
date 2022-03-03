@@ -76,7 +76,8 @@ def load_encoder(params):
     # encoder.load_weights(params['encoder_weights_file'])
     # return encoder
     # !# not sure if this is the right format
-    return load_model(params['encoder_weights_file'])
+    tf.compat.v1.disable_v2_behavior() # model trained in tf1
+    return tf.compat.v1.keras.models.load_model(params['encoder_weights_file'])
 
 
 # ===========================================
@@ -131,7 +132,7 @@ def decoder_model(params):
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
                                 return_sequences=True,
-                                activation='tanh', #########********
+                                activation='softmax',
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
@@ -258,4 +259,5 @@ def property_predictor_model(params):
 
 
 def load_property_predictor(params):
-    return load_model(params['prop_pred_weights_file'])
+    tf.compat.v1.disable_v2_behavior() # model trained in tf1
+    return tf.compat.v1.keras.models.load_model(params['prop_pred_weights_file'])
