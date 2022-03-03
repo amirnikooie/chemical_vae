@@ -138,23 +138,23 @@ class TerminalGRU(GRU):
         # self.units also changed to self._units
         self.input_dim = input_shape[-1]
 
-        self.W_z = self.init((self.input_dim, self.output_dim),
-                                 name='{}_W_z'.format(self.name))
-        self.U_z = self.inner_init((self.output_dim, self.output_dim),
-                                       name='{}_U_z'.format(self.name))
-        self.b_z = K.zeros((self.output_dim,), name='{}_b_z'.format(self.name))
+        self.W_z = self.init((self.input_dim, self.output_dim))#,
+#                                 name='{}_W_z'.format(self.name))
+        self.U_z = self.inner_init((self.output_dim, self.output_dim))#,
+#                                       name='{}_U_z'.format(self.name))
+        self.b_z = K.zeros((self.output_dim,))#, name='{}_b_z'.format(self.name))
 
-        self.W_r = self.init((self.input_dim, self.output_dim),
-                                 name='{}_W_r'.format(self.name))
-        self.U_r = self.inner_init((self.output_dim, self.output_dim),
-                                       name='{}_U_r'.format(self.name))
-        self.b_r = K.zeros((self.output_dim,), name='{}_b_r'.format(self.name))
+        self.W_r = self.init((self.input_dim, self.output_dim))#,
+#                                 name='{}_W_r'.format(self.name))
+        self.U_r = self.inner_init((self.output_dim, self.output_dim))#,
+#                                       name='{}_U_r'.format(self.name))
+        self.b_r = K.zeros((self.output_dim,))#, name='{}_b_r'.format(self.name))
 
-        self.W_h = self.init((self.input_dim, self.output_dim),
-                                 name='{}_W_h'.format(self.name))
-        self.U_h = self.inner_init((self.output_dim, self.output_dim),
-                                       name='{}_U_h'.format(self.name))
-        self.b_h = K.zeros((self.output_dim,), name='{}_b_h'.format(self.name))
+        self.W_h = self.init((self.input_dim, self.output_dim))#,
+#                                 name='{}_W_h'.format(self.name))
+        self.U_h = self.inner_init((self.output_dim, self.output_dim))#,
+#                                       name='{}_U_h'.format(self.name))
+        self.b_h = K.zeros((self.output_dim,))#, name='{}_b_h'.format(self.name))
 
         self.kernel = self.add_weight(
             shape=(self.input_dim, self._units * 3),
