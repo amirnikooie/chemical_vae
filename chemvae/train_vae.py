@@ -178,7 +178,7 @@ def load_models(params):
     x_in = encoder.inputs[0]
 
     z_mean, enc_output = encoder(x_in)
-                            z_samp, z_mean_log_var_output = variational_layers(z_mean, enc_output, kl_loss_var, params)
+    z_samp, z_mean_log_var_output = variational_layers(z_mean, enc_output, kl_loss_var, params)
 
     # Decoder
     if params['do_tgru']:

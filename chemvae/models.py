@@ -148,7 +148,6 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
-                                use_bias=True,
                                 return_sequences=True,
                                 activation='softmax',
                                 temperature=0.01,
