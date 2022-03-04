@@ -186,8 +186,10 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     def sampling(args):
         z_mean, z_log_var = args
 
-        epsilon = K.random_normal_variable(shape=(params['batch_size'], params['hidden_dim']),
-                                           mean=0., scale=1.)
+        epsilon = tf.random.normal(shape=(params['batch_size'], params['hidden_dim']))
+        # old Keras version
+        #epsilon = K.random_normal_vriable(shape=(params['batch_size'], params['hidden_dim']),
+        #                                   mean=0.0, scale=1.0)
         # insert kl loss here
 
         z_rand = z_mean + K.exp(z_log_var / 2) * kl_loss_var * epsilon
