@@ -129,7 +129,6 @@ def decoder_model(params):
 
         if params['do_tgru']:
             x_out = TerminalGRU(params['NCHARS'],
-                                use_bias = False,
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
                                 return_sequences=True,
