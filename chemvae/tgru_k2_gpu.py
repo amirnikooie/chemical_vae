@@ -122,7 +122,7 @@ class TerminalGRU(GRU):
 
 
         super(TerminalGRU, self).__init__(units,
-                                          use_bias=False,
+                                          use_bias=use_bias,
                                           recurrent_dropout=min(1., max(0., recurrent_dropout)),
                                           **kwargs)
         self._units = units
