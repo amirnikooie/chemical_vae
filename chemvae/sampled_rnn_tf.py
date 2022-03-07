@@ -157,6 +157,9 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
     output_ta = final_outputs[1]
     new_states = final_outputs[2:]
 
+    sys.stdout.write('11-11-11 I almost finished everything and coming out!!!! \n')
+    sys.stdout.flush()
+
     # this is in order to get the second output in states (i.e. the sampled
     # output)
     outputs = output_ta.stack()[:, :, 1, :]
