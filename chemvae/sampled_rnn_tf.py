@@ -8,6 +8,7 @@ Main difference is in how to handle dimensions of states.
 
 '''
 
+import sys
 
 def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
                 go_backwards=False, mask=None, rec_dp_constants=None,
