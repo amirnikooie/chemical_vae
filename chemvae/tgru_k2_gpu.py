@@ -261,8 +261,6 @@ class TerminalGRU(GRU):
         self.built = True
 
     def get_initial_states(self, x):
-        sys.stdout.write('4444 I made it to get_initial_states!!!!! \n')
-        sys.stdout.flush()
         # build an all-zero tensor of shape [(samples, output_dim), (samples, output_dim)]
         initial_state = K.zeros_like(x)  # (samples, timesteps, input_dim)
         initial_state = K.sum(initial_state, axis=1)  # (samples, input_dim)
@@ -271,6 +269,8 @@ class TerminalGRU(GRU):
 
         initial_state = K.dot(initial_state, reducer)  # (samples, output_dim)
         initial_states = [K.stack([initial_state, initial_state]) for _ in range(len(self.states))]
+        sys.stdout.write('5555 I successfully exited get_initial_states!!!!! \n')
+        sys.stdout.flush()
         return initial_states
 
     def compute_mask(self, input, mask):
@@ -319,8 +319,6 @@ class TerminalGRU(GRU):
         true_seq = inputs[1]
         if self.stateful:
             initial_states = self.states
-            sys.stdout.write('353535 I was already stateful!!!!! \n')
-            sys.stdout.flush()
         else:
             initial_states = self.get_initial_states(X)
 
