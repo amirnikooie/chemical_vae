@@ -11,7 +11,6 @@ encoder and decoder portions of the network
 # import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(gpu_free_number)
 
-import sys
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -56,7 +55,7 @@ from tensorflow.keras.layers import Layer #Lambda
 # highly recommended not to be used for variables that should be trained, because
 # it deserializes them and they will not appear in trainable_weights.
 class IdentityLayer(Layer):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(IdentityLayer, self).__init__()
 
     def call(self, invar):
@@ -194,15 +193,11 @@ def load_models(params):
 
     # Decoder
     if params['do_tgru']:
-        sys.stdout.write('0000 I am at the  beginning of the decoder!!\n')
-        sys.stdout.flush()
         x_out = decoder([z_samp, x_in])
 
     else:
         x_out = decoder(z_samp)
 
-    sys.stdout.write('**** I am before identity layer!!! \n')
-    sys.stdout.flush()
     x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out)
     model_outputs = [x_out, z_mean_log_var_output]
 
