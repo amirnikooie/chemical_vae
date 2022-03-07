@@ -39,7 +39,7 @@ def load_params(param_file=None, verbose=True):
         'recurrent_dim': 50,
         'do_tgru': True,                # use custom terminal gru layer
         'terminal_GRU_implementation': 1, # use CPU intensive implementation; other implementation modes (1 - GPU, 2- memory) are not yet implemented
-        'terminal_GRU_activation': 'softmax'
+        'terminal_GRU_activation': 'softmax',
         'tgru_dropout': 0.0,
         'temperature': 1.00,            # amount of noise for sampling the final output
 
