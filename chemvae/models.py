@@ -258,7 +258,7 @@ def property_predictor_model(params):
 
     # for regression tasks
     if ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0):
-        reg_prop_pred = Dense(len(params['reg_prop_tasks']), activation='linear',
+        reg_prop_pred = Dense(len(params['reg_prop_tasks']), activation=params['reg_prop_pred_flayer_activation'],
                               name='reg_property_output')(prop_mid)
 
     # for logistic tasks
