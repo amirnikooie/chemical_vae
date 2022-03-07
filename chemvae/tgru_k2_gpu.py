@@ -125,6 +125,7 @@ class TerminalGRU(GRU):
         super(TerminalGRU, self).__init__(units,
                                           use_bias=use_bias,
                                           recurrent_dropout=min(1., max(0., recurrent_dropout)),
+                                          implementation = 1,
                                           **kwargs)
         #self.units = units
         self.temperature = temperature
@@ -322,7 +323,7 @@ class TerminalGRU(GRU):
 
         # preprocessing makes input into right form for gpu/cpu settings
         # from original GRU code
-        sys.stdout.write("#########This is the value of self.implementation: " + str(self.implementation) + " !!\n")
+        sys.stdout.write("#########This is the value of self.implementation is: " + str(self.implementation) + "!!\n")
         sys.stdout.flush()
         recurrent_dropout_constants = self.get_constants(X)[0]
         preprocessed_input = self.preprocess_input(X)
