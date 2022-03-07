@@ -155,8 +155,6 @@ def decoder_model(params):
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
-            sys.stdout.write('^^^^ I have the outputs I need!! \n')
-            sys.stdout.flush()
         else:
             x_out = GRU(params['NCHARS'],
                         return_sequences=True, activation='softmax',

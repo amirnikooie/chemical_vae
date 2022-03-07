@@ -197,12 +197,12 @@ def load_models(params):
         sys.stdout.write('0000 I am at the  beginning of the decoder!!\n')
         sys.stdout.flush()
         x_out = decoder([z_samp, x_in])
-        sys.stdout.write('**** I even made it out of decoder successfully!!!! \n')
-        sys.stdout.flush()
 
     else:
         x_out = decoder(z_samp)
 
+    sys.stdout.write('**** I am before identity layer!!! \n')
+    sys.stdout.flush()
     x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out)
     model_outputs = [x_out, z_mean_log_var_output]
 

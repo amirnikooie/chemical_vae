@@ -103,7 +103,6 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
 from tensorflow.keras.layers import InputSpec
 import numpy as np
-import sys
 
 if K.backend() == 'tensorflow':
     from .sampled_rnn_tf import sampled_rnn
@@ -367,12 +366,7 @@ class TerminalGRU(GRU):
                                                    rec_dp_constants=recurrent_dropout_constants,
                                                    mask=None)
 
-        sys.stdout.write('#### I am out of everything in tgru and about to return the output\n')
-        sys.stdout.flush()
-
         if self.return_sequences:
-            sys.stdout.write('$$$$$ I am literally returning everything!\n')
-            sys.stdout.flush()
             return outputs
         else:
             return last_output
@@ -390,14 +384,10 @@ class TerminalGRU(GRU):
             return (input_shapes[1][0], input_shapes[1][1])
 
     def get_config(self):
-        sys.stdout.write('$$$$$ I am in the get_config now!\n')
-        sys.stdout.flush()
         config = {'units': self.units,
                   'temperature': self.temperature,
                   'rnd_seed': self.rnd_seed}
         base_config = super(TerminalGRU, self).get_config()
-        sys.stdout.write('@@@ I am coming out of get_config now!\n')
-        sys.stdout.flush()
         return dict(list(base_config.items()) + list(config.items()))
 
     def output_sampling(self, output, rand_matrix):
