@@ -104,6 +104,9 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
                                            'random_cutoff_prob': random_cutoff_prob,
                                            'rec_dp_mask': rec_dp_constants})
 
+    sys.stdout.write('10101010 step function was exited successfully!!!! \n')
+    sys.stdout.flush()
+
     output_ta = tensor_array_ops.TensorArray(
         dtype=outputs.dtype,
         size=time_steps,

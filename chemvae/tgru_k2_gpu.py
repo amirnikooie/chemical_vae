@@ -269,8 +269,6 @@ class TerminalGRU(GRU):
 
         initial_state = K.dot(initial_state, reducer)  # (samples, output_dim)
         initial_states = [K.stack([initial_state, initial_state]) for _ in range(len(self.states))]
-        sys.stdout.write('5555 I successfully exited get_initial_states!!!!! \n')
-        sys.stdout.flush()
         return initial_states
 
     def compute_mask(self, input, mask):
@@ -293,6 +291,8 @@ class TerminalGRU(GRU):
             constants.append(rec_dp_mask)
         else:
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
+        sys.stdout.write('6666 I successfully exited get_constants!!!!! \n')
+        sys.stdout.flush()
         return constants
 
     def preprocess_input(self, x): #
@@ -331,6 +331,8 @@ class TerminalGRU(GRU):
         ## Section for index matching of true inputs
         #################
         #  Basically, we need to add an extra timestep of just 0s for predicting the first timestep output
+        sys.stdout.write('7777 I successfully exited preprocess_inputs!!!!! \n')
+        sys.stdout.flush()
 
         axes = [1, 0] + list(range(2, K.ndim(true_seq)))
 
@@ -358,6 +360,9 @@ class TerminalGRU(GRU):
         test_phase_all_inputs = K.permute_dimensions(test_phase_all_inputs, axes)
 
         all_inputs = K.in_train_phase(all_inputs, test_phase_all_inputs)
+
+        sys.stdout.write('8888 I am going into sampled_rnn method!!!! \n')
+        sys.stdout.flush()
 
         last_output, outputs, states = sampled_rnn(self.step,
                                                    all_inputs,
@@ -435,6 +440,10 @@ class TerminalGRU(GRU):
         ################
         initial_states = states['initial_states']
         random_cutoff_vec = states['random_cutoff_prob']
+
+        sys.stdout.write('9999 Even step function inside sampled_rnn was called!!!! \n')
+        sys.stdout.flush()
+
 
         if self.recurrent_dropout > 0:
             rec_dp_mask = states['rec_dp_mask']
