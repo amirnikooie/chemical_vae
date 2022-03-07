@@ -8,8 +8,6 @@ Main difference is in how to handle dimensions of states.
 
 '''
 
-import sys
-
 def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
                 go_backwards=False, mask=None, rec_dp_constants=None,
                 unroll=False, input_length=None):
@@ -105,9 +103,6 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
                                            'random_cutoff_prob': random_cutoff_prob,
                                            'rec_dp_mask': rec_dp_constants})
 
-    sys.stdout.write('10101010 step function was exited successfully!!!! \n')
-    sys.stdout.flush()
-
     output_ta = tensor_array_ops.TensorArray(
         dtype=outputs.dtype,
         size=time_steps,
@@ -156,9 +151,6 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
     last_time = final_outputs[0]
     output_ta = final_outputs[1]
     new_states = final_outputs[2:]
-
-    sys.stdout.write('11-11-11 I almost finished everything and coming out!!!! \n')
-    sys.stdout.flush()
 
     # this is in order to get the second output in states (i.e. the sampled
     # output)

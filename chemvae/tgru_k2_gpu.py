@@ -361,8 +361,6 @@ class TerminalGRU(GRU):
 
         all_inputs = K.in_train_phase(all_inputs, test_phase_all_inputs)
 
-        sys.stdout.write('8888 I am going into sampled_rnn method!!!! \n')
-        sys.stdout.flush()
 
         last_output, outputs, states = sampled_rnn(self.step,
                                                    all_inputs,
@@ -372,6 +370,9 @@ class TerminalGRU(GRU):
                                                    go_backwards=self.go_backwards,
                                                    rec_dp_constants=recurrent_dropout_constants,
                                                    mask=None)
+
+        sys.stdout.write('#### I am out of everything in tgru and about to return the output\n')
+        sys.stdout.flush()
 
         if self.return_sequences:
             return outputs
@@ -391,10 +392,14 @@ class TerminalGRU(GRU):
             return (input_shapes[1][0], input_shapes[1][1])
 
     def get_config(self):
+        sys.stdout.write('$$$$$ I am in the get_config now!\n')
+        sys.stdout.flush()
         config = {'units': self.units,
                   'temperature': self.temperature,
                   'rnd_seed': self.rnd_seed}
         base_config = super(TerminalGRU, self).get_config()
+        sys.stdout.write('@@@ I am coming out of get_config now!\n')
+        sys.stdout.flush()
         return dict(list(base_config.items()) + list(config.items()))
 
     def output_sampling(self, output, rand_matrix):
