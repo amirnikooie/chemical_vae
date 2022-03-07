@@ -1,4 +1,3 @@
-import sys
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
 from tensorflow.keras.layers import Conv1D #

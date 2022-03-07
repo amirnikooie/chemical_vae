@@ -1,4 +1,4 @@
-from keras.callbacks import Callback, ModelCheckpoint
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 import numpy as np
 import pandas as pd
 from keras import backend as K
@@ -94,7 +94,7 @@ class EncoderDecoderCheckpoint(ModelCheckpoint):
                  monitor_best_init=-np.Inf):
         # Saves models at the end of every epoch if they are better than previous models
         # prop_to_montior : a property that is a valid name in the model
-        # monitor_op : The operation to use when monitoring the property 
+        # monitor_op : The operation to use when monitoring the property
         #    (e.g. accuracy to be maximized so use np.greater, loss to minimized, so use np.loss)
         # monitor_best_init : starting point for monitor (use -np.Inf for maximization tests, and np.Inf for minimization tests)
 
