@@ -103,7 +103,6 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
 from tensorflow.keras.layers import InputSpec
 import numpy as np
-import sys
 
 if K.backend() == 'tensorflow':
     from .sampled_rnn_tf import sampled_rnn
@@ -322,8 +321,6 @@ class TerminalGRU(GRU):
 
         # preprocessing makes input into right form for gpu/cpu settings
         # from original GRU code
-        sys.stdout.write("#########This is the value of self.implementation is: " + str(self.implementation) + "!!\n")
-        sys.stdout.flush()
         recurrent_dropout_constants = self.get_constants(X)[0]
         preprocessed_input = self.preprocess_input(X)
 
