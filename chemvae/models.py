@@ -104,8 +104,6 @@ def load_encoder(params):
 
 
 def decoder_model(params):
-    sys.stdout.write('11111 I just entered the decoder\n')
-    sys.stdout.flush()
     z_in = Input(shape=(params['hidden_dim'],), name='decoder_input')
     true_seq_in = Input(shape=(params['MAX_LEN'], params['NCHARS']),
                         name='decoder_true_seq_input')
@@ -136,8 +134,6 @@ def decoder_model(params):
 
     # Encoder parts using GRUs
     if params['gru_depth'] > 1:
-        sys.stdout.write('2222 I am making GRU units! \n')
-        sys.stdout.flush()
         x_dec = GRU(params['recurrent_dim'],
                     return_sequences=True, activation='tanh',
                     name="decoder_gru0"
@@ -150,7 +146,7 @@ def decoder_model(params):
                         )(x_dec)
 
         if params['do_tgru']:
-            sys.stdout.write('33333 I am in fucking tgru!! \n')
+            sys.stdout.write('33333 I am in the fucking tgru!! \n')
             sys.stdout.flush()
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
