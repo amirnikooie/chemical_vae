@@ -193,7 +193,7 @@ def load_models(params):
 
     # Decoder
     if params['do_tgru']:
-        sys.stdout.write('0000 I am at the  beginning of the decoder!!)
+        sys.stdout.write('0000 I am at the  beginning of the decoder!!')
         sys.stdout.flush()
         x_out = decoder([z_samp, x_in])
     else:
