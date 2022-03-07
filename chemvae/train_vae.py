@@ -11,6 +11,7 @@ encoder and decoder portions of the network
 # import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(gpu_free_number)
 
+import sys
 import argparse
 import numpy as np
 import tensorflow as tf
