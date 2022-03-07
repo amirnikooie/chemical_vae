@@ -151,7 +151,7 @@ def decoder_model(params):
                                 recurrent_dropout=params['tgru_dropout'],
                                 use_bias=True,
                                 return_sequences=True,
-                                activation='tanh',
+                                activation=params['terminal_GRU_activation'],
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
