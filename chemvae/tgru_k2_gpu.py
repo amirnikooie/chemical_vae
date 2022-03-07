@@ -125,7 +125,6 @@ class TerminalGRU(GRU):
         super(TerminalGRU, self).__init__(units,
                                           use_bias=use_bias,
                                           recurrent_dropout=min(1., max(0., recurrent_dropout)),
-                                          implementation = 1,
                                           **kwargs)
         #self.units = units
         self.temperature = temperature
