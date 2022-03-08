@@ -59,7 +59,7 @@ class IdentityLayer(Layer):
         super(IdentityLayer, self).__init__()
 
     def call(self, invar):
-      return K.identity(invar, name=self.name)
+      return tf.identity(invar, name=self.name)
 
 def vectorize_data(params):
     # @out : Y_train /Y_test : each is list of datasets.
