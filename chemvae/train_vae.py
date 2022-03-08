@@ -28,8 +28,8 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
   try:
     for gpu in gpus:
-      tf.config.experimental.set_memory_growth(gpu, True)
-      #tf.config.set_logical_device_configuration(gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=16384)])
+      #tf.config.experimental.set_memory_growth(gpu, True)
+      tf.config.set_logical_device_configuration(gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=16384)])
   except RuntimeError as e:
     print(e)
 
