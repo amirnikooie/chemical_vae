@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
 from tensorflow.keras.layers import Conv1D #
 from tensorflow.keras.layers import GRU
-from tensorflow.keras.layers import BatchNormalization, Layer #Lambda
+from tensorflow.keras.layers import BatchNormalization, Layer, Lambda
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras import backend as K
@@ -13,17 +13,17 @@ from .tgru_k2_gpu import TerminalGRU
 # I added this class to replace Lambda layers that are used for sampling the latent space. In tf v2.x it is
 # highly recommended not to be used for variables that should be trained, because
 # it deserializes them and they will not appear in trainable_weights.
-class SamplingLayer(Layer):
-    def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
-        super(SamplingLayer, self).__init__() ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
-        self.shape0 = params['batch_size']
-        self.shape1 = params['hidden_dim']
-        self.kl_loss = kl_loss_var
-    def call(self, args):
-        z_mean, z_log_var = args
-        epsilon = tf.random.normal(shape=(self.shape0, self.shape1))
-        z_rand = z_mean + K.exp(z_log_var / 2) * self.kl_loss * epsilon
-        return K.in_train_phase(z_rand, z_mean) ### Double check function names ,etc.
+#class SamplingLayer(Layer):
+#    def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
+#        super(SamplingLayer, self).__init__() ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
+#        self.shape0 = params['batch_size']
+#        self.shape1 = params['hidden_dim']
+#        self.kl_loss = kl_loss_var
+#    def call(self, args):
+#        z_mean, z_log_var = args
+#        epsilon = tf.random.normal(shape=(self.shape0, self.shape1))
+#        z_rand = z_mean + K.exp(z_log_var / 2) * self.kl_loss * epsilon
+#        return K.in_train_phase(z_rand, z_mean) ### Double check function names ,etc.
 
 
 # =============================
@@ -202,15 +202,15 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
 
     #=== old Keras version now replaced by SamplingLayer class on top
 
-    #def sampling(args):
-    #    z_mean, z_log_var = args
+    def sampling(args):
+        z_mean, z_log_var = args
 
-    #    epsilon = K.random_normal_variable(shape=(params['batch_size'], params['hidden_dim']),
-    #                                       mean=0., scale=1.)
-    #    # insert kl loss here
+        epsilon = K.random_normal_variable(shape=(params['batch_size'], params['hidden_dim']),
+                                           mean=0., scale=1.)
+        # insert kl loss here
 
-    #    z_rand = z_mean + K.exp(z_log_var / 2) * kl_loss_var * epsilon
-    #    return K.in_train_phase(z_rand, z_mean)
+        z_rand = z_mean + K.exp(z_log_var / 2) * kl_loss_var * epsilon
+        return K.in_train_phase(z_rand, z_mean)
 
 
     # variational encoding
@@ -220,7 +220,7 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     z_mean_log_var_output = Concatenate(
         name='z_mean_log_var')([z_mean, z_log_var])
 
-    z_samp = SamplingLayer(params, kl_loss_var)([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
+    z_samp = z_samp = Lambda(sampling)([z_mean, z_log_var]) #SamplingLayer(params, kl_loss_var)([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
 
     if params['batchnorm_vae']:
         z_samp = BatchNormalization(axis=-1)(z_samp)
