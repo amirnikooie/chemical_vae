@@ -175,7 +175,7 @@ def load_models(params):
 
     # identity matrix replaced in IdentityLayer class above
     def identity(x):
-        return K.identity(x)
+        return tf.identity(x)
 
     # def K_params with kl_loss_var
     kl_loss_var = K.variable(params['kl_loss_weight'])
