@@ -1,7 +1,7 @@
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 import numpy as np
 import pandas as pd
-from keras import backend as K
+from tensorflow.keras import backend as K
 import os
 
 
@@ -99,7 +99,7 @@ class EncoderDecoderCheckpoint(ModelCheckpoint):
         # monitor_best_init : starting point for monitor (use -np.Inf for maximization tests, and np.Inf for minimization tests)
 
         self.p = params
-        super(ModelCheckpoint, self).__init__()
+        super(EncoderDecoderCheckpoint, self).__init__()
         self.save_best_only = save_best_only
         self.monitor = prop_to_monitor
         self.monitor_op = monitor_op
