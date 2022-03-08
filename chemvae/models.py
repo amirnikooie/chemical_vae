@@ -15,7 +15,7 @@ from .tgru_k2_gpu import TerminalGRU
 # it deserializes them and they will not appear in trainable_weights.
 class SamplingLayer(Layer):
     def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
-        super(SamplingLayer, self).__init__() ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
+        super(SamplingLayer, self).__init__(**kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
         self.shape0 = params['batch_size']
         self.shape1 = params['hidden_dim']
         self.kl_loss = kl_loss_var
@@ -156,7 +156,7 @@ def decoder_model(params):
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, activation='softmax',
+                        return_sequences=True, activation=params['terminal_GRU_activation'],
                         name='decoder_gru_final')(x_dec)
 
     else:
@@ -165,13 +165,13 @@ def decoder_model(params):
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
                                 return_sequences=True,
-                                activation='softmax',
+                                activation=params['terminal_GRU_activation'],
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([z_reps, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, activation='softmax',
+                        return_sequences=True, activation=params['terminal_GRU_activation'],
                         name='decoder_gru_final'
                         )(z_reps)
 
@@ -220,7 +220,7 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     z_mean_log_var_output = Concatenate(
         name='z_mean_log_var')([z_mean, z_log_var])
 
-    z_samp = z_samp = SamplingLayer(params, kl_loss_var)([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
+    z_samp = SamplingLayer(params, kl_loss_var)([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
 
     if params['batchnorm_vae']:
         z_samp = BatchNormalization(axis=-1)(z_samp)

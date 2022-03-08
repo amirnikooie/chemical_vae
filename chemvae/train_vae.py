@@ -48,19 +48,18 @@ from .models import decoder_model, load_decoder
 from .models import property_predictor_model, load_property_predictor
 from .models import variational_layers
 from functools import partial
-from tensorflow.keras.layers import Layer, Lambda
+from tensorflow.keras.layers import Layer #, Lambda
 
 
 # I added this class to replace Lambda layers that are used to mimic identity matrix. In tf v2.x it is
 # highly recommended not to be used for variables that should be trained, because
 # it deserializes them and they will not appear in trainable_weights.
+class IdentityLayer(Layer):
+    def __init__(self, **kwargs):
+        super(IdentityLayer, self).__init__(**kwargs)
 
-#class IdentityLayer(Layer):
-#    def __init__(self, **kwargs):
-#        super(IdentityLayer, self).__init__()
-
-#    def call(self, invar):
-#      return tf.identity(invar, name=self.name)
+    def call(self, invar):
+      return tf.identity(invar)
 
 def vectorize_data(params):
     # @out : Y_train /Y_test : each is list of datasets.
@@ -199,7 +198,7 @@ def load_models(params):
     else:
         x_out = decoder(z_samp)
 
-    x_out = Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
+    x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
     model_outputs = [x_out, z_mean_log_var_output]
 
     AE_only_model = Model(x_in, model_outputs)
@@ -214,20 +213,20 @@ def load_models(params):
                 ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 )):
 
             reg_prop_pred, logit_prop_pred   = property_predictor(z_mean)
-            reg_prop_pred = Lambda(identity, name='reg_prop_pred')(reg_prop_pred) #IdentityLayer(name='reg_prop_pred')(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
-            logit_prop_pred = Lambda(identity, name='logit_prop_pred')(logit_prop_pred) #IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.extend([reg_prop_pred,  logit_prop_pred])
 
         # regression only scenario
         elif ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0 ):
             reg_prop_pred = property_predictor(z_mean)
-            reg_prop_pred = Lambda(identity, name='reg_prop_pred')(reg_prop_pred) #IdentityLayer(name='reg_prop_pred')(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred) # #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
             model_outputs.append(reg_prop_pred)
 
         # logit only scenario
         elif ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 ):
             logit_prop_pred = property_predictor(z_mean)
-            logit_prop_pred = Lambda(identity, name='logit_prop_pred')(logit_prop_pred) #IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) # #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.append(logit_prop_pred)
 
         else:
