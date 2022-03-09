@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
 from tensorflow.keras.layers import Conv1D #
 from tensorflow.keras.layers import GRU
-from tensorflow.keras.layers import BatchNormalization, Layer, Lambda
+from tensorflow.keras.layers import BatchNormalization, Layer #, Lambda
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras import backend as K
@@ -164,6 +164,7 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
+                                use_bias=True,
                                 return_sequences=True,
                                 activation=params['terminal_GRU_activation'],
                                 temperature=0.01,

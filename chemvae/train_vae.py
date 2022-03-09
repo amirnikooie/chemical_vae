@@ -48,7 +48,7 @@ from .models import decoder_model, load_decoder
 from .models import property_predictor_model, load_property_predictor
 from .models import variational_layers
 from functools import partial
-from tensorflow.keras.layers import Layer #, Lambda
+from tensorflow.keras.layers import Layer
 
 
 # I added this class to replace Lambda layers that are used to mimic identity matrix. In tf v2.x it is
@@ -220,13 +220,13 @@ def load_models(params):
         # regression only scenario
         elif ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0 ):
             reg_prop_pred = property_predictor(z_mean)
-            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred) # #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred)  #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
             model_outputs.append(reg_prop_pred)
 
         # logit only scenario
         elif ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 ):
             logit_prop_pred = property_predictor(z_mean)
-            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) # #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.append(logit_prop_pred)
 
         else:

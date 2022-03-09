@@ -103,11 +103,11 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
 from tensorflow.keras.layers import InputSpec
 import numpy as np
+import sys
 
 if K.backend() == 'tensorflow':
     from .sampled_rnn_tf import sampled_rnn
 else:
-
     raise NotImplemented("Backend not implemented")
 
 class TerminalGRU(GRU):
@@ -278,6 +278,8 @@ class TerminalGRU(GRU):
     def get_constants(self, inputs, training=None):
         constants = []
         if 0. < self.recurrent_dropout < 1.:
+            sys.stdout.write("@@@@ I'm f** here becasue of dropout!")
+            sys.stdout.flush()
             ones = K.ones_like(K.reshape(inputs[:, 0, 0], (-1, 1)))
             ones = K.tile(ones, (1, self.units))
 
@@ -288,6 +290,8 @@ class TerminalGRU(GRU):
                                             ones,
                                             training=training) for _ in range(3)]
             constants.append(rec_dp_mask)
+            sys.stdout.write("#### I successfully came out!!")
+            sys.stdout.flush()
         else:
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
         return constants
