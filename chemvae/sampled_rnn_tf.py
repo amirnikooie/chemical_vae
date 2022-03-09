@@ -180,6 +180,8 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
             (num_samples,), minval=0, maxval=1)
         #==== Customized section end ====
 
+        current_input = tuple(ta.read(time) for ta in input_ta)
+        current_input = nest.pack_sequence_as(inputs, current_input)
     #===== Customized input arguments for step_function start ======
         output, new_states = step_function(current_input,
                                            {'initial_states': states,
