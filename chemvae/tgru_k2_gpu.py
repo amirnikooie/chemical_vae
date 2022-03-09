@@ -366,8 +366,8 @@ class TerminalGRU(GRU):
                                                    rec_dp_constants=recurrent_dropout_constants,
                                                    mask=None)
 
-            sys.stdout.write("@@@ I'm f** out of sampled_rnn function!")
-            sys.stdout.flush()
+        sys.stdout.write("@@@ I'm f** out of sampled_rnn function!")
+        sys.stdout.flush()
 
         if self.return_sequences:
             return outputs
