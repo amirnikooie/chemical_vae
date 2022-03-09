@@ -232,8 +232,8 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
     outputs = nest.map_structure(set_shape, outputs)
 
     #==== Customized section start ====
-    outputs = output_ta.stack()[:, :, 1, :] # This brackets in this line and the next line is one difference.
-    last_output = output_ta.read(last_time - 1)[:, 1, :]
+    outputs = outputs[:, :, 1, :] # This brackets in this line and the next line is one difference.
+    last_output = last_output[:, 1, :]
     #==== Customized section start ====
 
     if not time_major:
