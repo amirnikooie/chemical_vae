@@ -14,7 +14,6 @@ encoder and decoder portions of the network
 import argparse
 import numpy as np
 import tensorflow as tf
-import sys
 
 # TF V1.x syntax:
 '''
@@ -387,9 +386,6 @@ def main_property_run(params):
                optimizer=optim,
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
-
-    sys.stdout.write("### I f** finished compinling the model!")
-    sys.stdout.flush()
 
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
