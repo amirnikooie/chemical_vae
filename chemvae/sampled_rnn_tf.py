@@ -194,7 +194,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
         output = tf.transpose(output, (axes))
         #==== Customized section end ====
 
-        for state, new_state in zip(flat_state, flat_new_state):
+#        for state, new_state in zip(flat_state, flat_new_state):
 #          if isinstance(new_state, ops.Tensor):
 #            new_state.set_shape(state.shape)
 
