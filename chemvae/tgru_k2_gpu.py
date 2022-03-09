@@ -517,5 +517,7 @@ class TerminalGRU(GRU):
                                             free_running(h, states))
 
         output_2d_tensor = K.squeeze(output_2d_tensor, 1)
+        sys.stdout.write("%%%% I'm inside free run and about to return!")
+        sys.stdout.flush()
 
         return output_2d_tensor, [output_2d_tensor]
