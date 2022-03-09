@@ -366,7 +366,7 @@ class TerminalGRU(GRU):
                                                    rec_dp_constants=recurrent_dropout_constants,
                                                    mask=None)
 
-        sys.stdout.write("@@@ I'm f** out of sampled_rnn function!")
+        sys.stdout.write("@@@ I'm f** out of sampled_rnn function!\n")
         sys.stdout.flush()
 
         if self.return_sequences:
@@ -474,6 +474,9 @@ class TerminalGRU(GRU):
                                  K.dot(r * prev_sampled_output, self.recurrent_kernel_y))
 
             output = z * h_tm1 + (1. - z) * hh
+
+            sys.stdout.write("$$$ I'm inside f** techer forcing and about to return!")
+            sys.stdout.flush()
 
             return K.stack([output, output])
 
