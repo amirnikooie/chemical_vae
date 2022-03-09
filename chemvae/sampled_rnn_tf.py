@@ -10,6 +10,7 @@ Main difference is in how to handle dimensions of states.
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import tensor_array_ops
+from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import control_flow_ops, control_flow_util
 from tensorflow.python.ops import math_ops
 from tensorflow.python.framework import constant_op
