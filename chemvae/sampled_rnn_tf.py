@@ -227,7 +227,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
             shape[0] = time_steps
             shape[1] = batch
             output_.set_shape(shape)
-    return output_
+        return output_
 
     outputs = nest.map_structure(set_shape, outputs)
 
