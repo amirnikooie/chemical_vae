@@ -14,6 +14,7 @@ encoder and decoder portions of the network
 import argparse
 import numpy as np
 import tensorflow as tf
+import sys
 
 # TF V1.x syntax:
 '''
@@ -275,7 +276,7 @@ def main_no_prop(params):
             vae_sig_schedule, kl_loss_var, params['kl_loss_weight'], 'vae' )
 
     csv_clb = CSVLogger(params["history_file"], append=False)
-    callbacks = [ vae_anneal_callback, csv_clb]
+    callbacks = [vae_anneal_callback, csv_clb]
 
 
     def vae_anneal_metric(y_true, y_pred):
@@ -370,7 +371,7 @@ def main_property_run(params):
 
     csv_clb = CSVLogger(params["history_file"], append=False)
 
-    callbacks = [ vae_anneal_callback, csv_clb]
+    callbacks = [vae_anneal_callback, csv_clb]
     def vae_anneal_metric(y_true, y_pred):
         return kl_loss_var
 
@@ -387,6 +388,8 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
+    sys.stdout.write("### I f** finished compinling the model!")
+    sys.stdout.flush()
 
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
