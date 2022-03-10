@@ -199,6 +199,8 @@ def load_models(params):
         x_out = decoder([z_samp, x_in])
 
     else:
+        sys.stdout.write("??? I'm wrongly here!!!\n")
+        sys.stdout.flush()
         x_out = decoder(z_samp)
 
     x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
