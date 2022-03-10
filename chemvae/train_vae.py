@@ -194,10 +194,8 @@ def load_models(params):
 
     # Decoder
     if params['do_tgru']:
-
         sys.stdout.write("^^^ I'm in calling deocoder and here's the x_in:\n" + str(x_in) + "!!\n")
-        sys.stdou.flush()
-
+        sys.stdout.flush()
         x_out = decoder([z_samp, x_in])
 
     else:
