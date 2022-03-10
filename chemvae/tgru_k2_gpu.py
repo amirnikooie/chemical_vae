@@ -63,7 +63,7 @@ self.implementation ==0 : cpu
 '''
 
 ##### I'm sticking with CPU and thus the original code. For fully adapting v2 and gpu I will not use this code and probably move to LSTM or Attention based anywayself.
-def time_distributed_dense(x, w, b=None, dropout=None, use_bias=False,
+def time_distributed_dense(x, w, b=None, dropout=None,
                            input_dim=None, output_dim=None, timesteps=None):
     '''Apply y.w + b for every temporal slice y of x.
     '''
@@ -115,7 +115,7 @@ class TerminalGRU(GRU):
     # Implements professor forcing
 
     def __init__(self, units,
-                 temperature=1., rnd_seed=None, recurrent_dropout=0.0,
+                 temperature=1., rnd_seed=None, recurrent_dropout=0.0, use_bias=False,
                  **kwargs):
         # @param: temperature - sampling temperature
         # Annealing will be handled in the callbacks
@@ -128,7 +128,6 @@ class TerminalGRU(GRU):
         #self.units = units
         self.temperature = temperature
         self.rnd_seed = rnd_seed
-        self.use_bias = use_bias
         self.uses_learning_phase = True
         self.supports_masking = False
         #self.units = units
