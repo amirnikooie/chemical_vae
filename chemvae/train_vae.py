@@ -14,6 +14,7 @@ encoder and decoder portions of the network
 import argparse
 import numpy as np
 import tensorflow as tf
+import sys
 
 # TF V1.x syntax:
 '''
@@ -193,6 +194,10 @@ def load_models(params):
 
     # Decoder
     if params['do_tgru']:
+
+        sys.stdout.write("^^^ I'm in calling deocoder and here's the x_in:\n" + str(x_in) + "!!\n")
+        sys.stdou.flush()
+
         x_out = decoder([z_samp, x_in])
 
     else:
