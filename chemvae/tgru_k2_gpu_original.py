@@ -186,14 +186,17 @@ class TerminalGRU(GRU):
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
         return constants
 
-    def call(self, inputs, mask=None):  #=== This seems to be burrowed from the call() function of the GRU's parent class, Recurrent. With some modifications that can be seen in my comments for each line, if any.
-        if type(inputs) is not list or len(inputs) != 2:
+    def call(self, inputs, mask=None):  #=== This function is fully customized. It is not related to the parent Recurrent class and does not exist in the GRU class as well.
+        if type(inputs) is not list or len(inputs) != 2: #=== The next 4 lines are added to make sure both inputs are passed
             raise Exception('terminal gru runs on list of length 2')
 
         X = inputs[0]
         true_seq = inputs[1]
+                             #=== All the if and else lines related to unroll, and initial_state are removed, perhaps because that only one caes is passed to this function.
+                             #=== You know why? because they don't consider 'initial_states' to be an input at all in the call() function. This is different from the original code in Recurrent class.
+                             #=== They deal with it in the step() function and as a dictionary as explained above.
 
-        if self.stateful:
+        if self.stateful: #=== This is also totally customized to the need of the code.
             initial_states = self.states
         else:
             initial_states = self.get_initial_states(X)
