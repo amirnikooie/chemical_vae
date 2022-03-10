@@ -309,6 +309,11 @@ class TerminalGRU(GRU):
             return x
 
     def call(self, inputs, mask=None, **kwargs):
+        sys.stdout.write(str(type(inputs))+"!!\n")
+        sys.stdout.flush()
+
+        sys.stdout.write(str(inputs)+"\n@@@")
+        sys.stdout.flush()
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
