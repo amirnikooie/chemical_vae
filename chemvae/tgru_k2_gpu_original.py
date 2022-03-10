@@ -61,56 +61,19 @@ self.implementation ==1 : mem
 self.implementation ==0 : cpu
 
 '''
-
-##### I'm sticking with CPU and thus the original code. For fully adapting v2 and gpu I will not use this code and probably move to LSTM or Attention based anywayself.
-def time_distributed_dense(x, w, b=None, dropout=None,
-                           input_dim=None, output_dim=None, timesteps=None):
-    '''Apply y.w + b for every temporal slice y of x.
-    '''
-    if not input_dim:
-        input_dim = K.shape(x)[2]
-    if not timesteps:
-        timesteps = K.shape(x)[1]
-    if not output_dim:
-        output_dim = K.shape(w)[1]
-
-    if dropout is not None and 0. < dropout < 1.:
-        # apply the same dropout pattern at every timestep
-        ones = K.ones_like(K.reshape(x[:, 0, :], (-1, input_dim)))
-        dropout_matrix = K.dropout(ones, dropout)
-        expanded_dropout_matrix = K.repeat(dropout_matrix, timesteps)
-        x = K.in_train_phase(x * expanded_dropout_matrix, x)
-
-    # collapse time dimension and batch dimension together
-    x = K.reshape(x, (-1, input_dim))
-    x = K.dot(x, w)
-    if b is not None:
-        x = x + b
-    # reshape to 3D tensor
-    if K.backend() == 'tensorflow':
-        x = K.reshape(x, tf.stack([-1, timesteps, output_dim]))
-        x.set_shape([None, None, output_dim])
-    else:
-        x = K.reshape(x, (-1, timesteps, output_dim))
-    return x
-
-
-
-#from .my_gru import GRU2
-import tensorflow as tf
-from tensorflow.keras.layers import GRU
-from tensorflow.keras import backend as K
-from tensorflow.keras import initializers
-from tensorflow.keras.layers import InputSpec
+from keras.layers.recurrent import GRU
+from keras import backend as K
+from keras.engine import InputSpec
 import numpy as np
-import sys
 
 if K.backend() == 'tensorflow':
     from .sampled_rnn_tf import sampled_rnn
 else:
+
     raise NotImplemented("Backend not implemented")
 
-class TerminalGRU(GRUCell):
+
+class TerminalGRU(GRU):
     # Heavily adapted from GRU in recurrent.py
     # Implements professor forcing
 
@@ -119,101 +82,32 @@ class TerminalGRU(GRUCell):
                  **kwargs):
         # @param: temperature - sampling temperature
         # Annealing will be handled in the callbacks
-
-
-        super(TerminalGRU, self).__init__(units,
-                                          use_bias=use_bias,
-                                          recurrent_dropout=min(1., max(0., recurrent_dropout)),
-                                          **kwargs)
-        #self.units = units
-        self.temperature = temperature
-        self.rnd_seed = rnd_seed
-        self.uses_learning_phase = True
-        self.supports_masking = False
-        #self.units = units
-        #self._recurrent_dropout = min(1., max(0., recurrent_dropout))
+        super(TerminalGRU, self).__init__(units, **kwargs)
+        self.units = units #=== should be an initialization argument due to prpoerty
+        self.temperature = temperature #=== specific to this code
+        self.rnd_seed = rnd_seed #=== specific to this code
+        self.uses_learning_phase = True #=== deprecated in 2.x
+        self.supports_masking = False #=== This is defaulted to True in RNN in 2.x. Should be set to False in initialization or even outside as it is not property.
+        self.recurrent_dropout = min(1., max(0., recurrent_dropout)) #=== should be an initialization argument due to prpoerty
         self.input_spec = [InputSpec(ndim=3),
-                           InputSpec(ndim=3)]
-
-        #self._use_bias = False
-
-        self.init = initializers.get('glorot_uniform')
-        self.inner_init = initializers.get('orthogonal')
-        self.output_dim = units
+                           InputSpec(ndim=3)] #=== should be modified like this. This is an attribute of RNN in 2.x where GRU is inherited from
 
     def build(self, input_shape):
-        if isinstance(input_shape, list): # These two lines carried over from original code to handle list input_shapes
-            input_shape = input_shape[0]
-        # self.units also changed to self.units
-        self.input_dim = input_shape[-1]
-        self.time_step = input_shape[1]
-
-        self.W_z = self.init((self.input_dim, self.output_dim))#,
-#                                 name='{}_W_z'.format(self.name))
-        self.U_z = self.inner_init((self.output_dim, self.output_dim))#,
-#                                       name='{}_U_z'.format(self.name))
-        self.b_z = K.zeros((self.output_dim,))#, name='{}_b_z'.format(self.name))
-
-        self.W_r = self.init((self.input_dim, self.output_dim))#,
-#                                 name='{}_W_r'.format(self.name))
-        self.U_r = self.inner_init((self.output_dim, self.output_dim))#,
-#                                       name='{}_U_r'.format(self.name))
-        self.b_r = K.zeros((self.output_dim,))#, name='{}_b_r'.format(self.name))
-
-        self.W_h = self.init((self.input_dim, self.output_dim))#,
-#                                 name='{}_W_h'.format(self.name))
-        self.U_h = self.inner_init((self.output_dim, self.output_dim))#,
-#                                       name='{}_U_h'.format(self.name))
-        self.b_h = K.zeros((self.output_dim,))#, name='{}_b_h'.format(self.name)
-        self.dropout_W = 0
-
-        '''
-        self.kernel = self.add_weight(
-            shape=(self.input_dim, self.units * 3),
-            name='kernel',
-            initializer=self.kernel_initializer,
-            regularizer=self.kernel_regularizer,
-            constraint=self.kernel_constraint)
-
-        self.recurrent_kernel = self.add_weight(
-            shape=(self.units, self.units * 4),
-            name='recurrent_kernel',
-            initializer=self.recurrent_initializer,
-            regularizer=self.recurrent_regularizer,
-            constraint=self.recurrent_constraint)
-
-        if self.use_bias:
-            if not self.reset_after:
-                bias_shape = (3 * self.units,)
-            else:
-                # separate biases for input and recurrent kernels
-                # Note: the shape is intentionally different from CuDNNGRU biases
-                # `(2 * 3 * self.units,)`, so that we can distinguish the classes
-                # when loading and converting saved weights.
-                bias_shape = (2, 3 * self.units)
-            self.bias = self.add_weight(shape=bias_shape,
-                                    name='bias',
-                                    initializer=self.bias_initializer,
-                                    regularizer=self.bias_regularizer,
-                                    constraint=self.bias_constraint)
-        else:
-            self.bias = None
-        self.built = True
-        '''
-
         # all of this is copied from GRU, except for one part commented below
+        if isinstance(input_shape, list):
+            input_shape = input_shape[0]
 
         batch_size = input_shape[0] if self.stateful else None
-        #self.input_dim = input_shape[2]
+        self.input_dim = input_shape[2]
         self.input_spec = [InputSpec(shape=(batch_size, None, self.input_dim)),
-                           InputSpec(shape=(batch_size, None, self.units))]
+                           InputSpec(shape=(batch_size, None, self.units))] #=== Added this as the input has two elements. The only change.
         self.state_spec = InputSpec(shape=(batch_size, self.units))
 
         self.states = [None]
         if self.stateful:
             self.reset_states()
 
-        self.kernel = self.add_weight(shape=(self.input_dim, self.units * 3),
+        self.kernel = self.add_weight((self.input_dim, self.units * 3),
                                       name='kernel',
                                       initializer=self.kernel_initializer,
                                       regularizer=self.kernel_regularizer,
@@ -223,14 +117,14 @@ class TerminalGRU(GRUCell):
         # this last recurrent weight applied to true sequence input from prev. timestep,
         #   or sampled output from prev. time step.
         self.recurrent_kernel = self.add_weight(
-            shape=(self.units, self.units * 4),
+            (self.units, self.units * 4),  #=== 3 is changed to 4.
             name='recurrent_kernel',
             initializer=self.recurrent_initializer,
             regularizer=self.recurrent_regularizer,
             constraint=self.recurrent_constraint)
 
         if self.use_bias:
-            self.bias = self.add_weight(shape=(self.units * 4,),
+            self.bias = self.add_weight((self.units * 4,), #=== 3 is changed to 4.
                                         name='bias',
                                         initializer='zero',
                                         regularizer=self.bias_regularizer,
@@ -245,21 +139,21 @@ class TerminalGRU(GRUCell):
                                   self.units:
                                   self.units * 2]
         self.kernel_h = self.kernel[:, self.units * 2:]
-        self.recurrent_kernel_h = self.recurrent_kernel[:, self.units * 2:self.units * 3]
-        self.recurrent_kernel_y = self.recurrent_kernel[:, self.units * 3:]
+        self.recurrent_kernel_h = self.recurrent_kernel[:, self.units * 2:self.units * 3] #=== 2 is changed to 3
+        self.recurrent_kernel_y = self.recurrent_kernel[:, self.units * 3:] #=== totally new line. In fact, 'y' is something that does not exist in the original code.
 
         if self.use_bias:
             self.bias_z = self.bias[:self.units]
             self.bias_r = self.bias[self.units: self.units * 2]
-            self.bias_h = self.bias[self.units * 2: self.units * 3]
-            self.bias_h = self.bias[self.units * 3:]
+            self.bias_h = self.bias[self.units * 2: self.units * 3] #=== Totally new line.
+            self.bias_h = self.bias[self.units * 3:] #=== 2 is changed to 3
         else:
             self.bias_z = None
             self.bias_r = None
             self.bias_h = None
         self.built = True
 
-    def get_initial_states(self, x):
+    def get_initial_states(self, x): #==== Customized get_initial_states based on the original code in the parent class Recurrent
         # build an all-zero tensor of shape [(samples, output_dim), (samples, output_dim)]
         initial_state = K.zeros_like(x)  # (samples, timesteps, input_dim)
         initial_state = K.sum(initial_state, axis=1)  # (samples, input_dim)
@@ -270,12 +164,12 @@ class TerminalGRU(GRUCell):
         initial_states = [K.stack([initial_state, initial_state]) for _ in range(len(self.states))]
         return initial_states
 
-    def compute_mask(self, input, mask):
+    def compute_mask(self, input, mask): #=== New here and in fact not being used. Seems that it can be ignored. It was one of the function of parent Recurrent class in the original Keras code
         # Forced to be single dimension, following behavior of Merge layer
         # not implemented
         return None
 
-    def get_constants(self, inputs, training=None):
+    def get_constants(self, inputs, training=None): #=== Copy-paste of original code where it only considers 'recurrent_dropout'
         constants = []
         if 0. < self.recurrent_dropout < 1.:
             ones = K.ones_like(K.reshape(inputs[:, 0, 0], (-1, 1)))
@@ -292,28 +186,13 @@ class TerminalGRU(GRUCell):
             constants.append([K.cast_to_floatx(1.) for _ in range(3)])
         return constants
 
-    def preprocess_input(self, x): #
-        if self.implementation == 1: #self.consume_less == 'cpu':
-            #input_shape = self.input_spec[0].shape
-            input_dim = self.input_dim#input_shape[2]
-            timesteps = self.time_step#input_shape[1]
-
-            x_z = time_distributed_dense(x, self.W_z, self.b_z, self.dropout_W,
-                                         input_dim, self.output_dim, timesteps)
-            x_r = time_distributed_dense(x, self.W_r, self.b_r, self.dropout_W,
-                                         input_dim, self.output_dim, timesteps)
-            x_h = time_distributed_dense(x, self.W_h, self.b_h, self.dropout_W,
-                                         input_dim, self.output_dim, timesteps)
-            return K.concatenate([x_z, x_r, x_h], axis=2)
-        else:
-            return x
-
-    def call(self, inputs, mask=None, **kwargs):
+    def call(self, inputs, mask=None):  #=== This seems to be burrowed from the call() function of the GRU's parent class, Recurrent. With some modifications that can be seen in my comments for each line, if any.
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
         X = inputs[0]
         true_seq = inputs[1]
+
         if self.stateful:
             initial_states = self.states
         else:
@@ -322,7 +201,7 @@ class TerminalGRU(GRUCell):
         # preprocessing makes input into right form for gpu/cpu settings
         # from original GRU code
         recurrent_dropout_constants = self.get_constants(X)[0]
-        preprocessed_input = self.preprocess_input(X)
+        preprocessed_input = self.preprocess_input(X) #=== The preprocess_input() function is totally copy-paste of this function in original GRU class in Keras code, where it utilizes one of the functions in parent Recurrent named _time_distributed_dense().
 
         #################
         ## Section for index matching of true inputs
@@ -356,7 +235,6 @@ class TerminalGRU(GRUCell):
 
         all_inputs = K.in_train_phase(all_inputs, test_phase_all_inputs)
 
-
         last_output, outputs, states = sampled_rnn(self.step,
                                                    all_inputs,
                                                    initial_states,
@@ -365,9 +243,6 @@ class TerminalGRU(GRUCell):
                                                    go_backwards=self.go_backwards,
                                                    rec_dp_constants=recurrent_dropout_constants,
                                                    mask=None)
-
-        sys.stdout.write("@@@ I'm f** out of sampled_rnn function!\n")
-        sys.stdout.flush()
 
         if self.return_sequences:
             return outputs
@@ -456,12 +331,12 @@ class TerminalGRU(GRUCell):
             # this should correspond  to true input
             prev_sampled_output = true_input
 
-            if self.implementation == 1:
+            if self.implementation == 0:
                 x_z = prev_layer_input[0, :, :self.units]
                 x_r = prev_layer_input[0, :, self.units: 2 * self.units]
                 x_h = prev_layer_input[0, :, 2 * self.units:]
             else:
-                raise ValueError('Implementation type ' + str(self.implementation) + ' is invalid')
+                raise ValueError('Implementation type ' + self.implementation + ' is invalid')
 
             z = self.recurrent_activation(x_z + K.dot(h_tm1 * rec_dp_mask[0],
                                                       self.recurrent_kernel_z))
@@ -474,9 +349,6 @@ class TerminalGRU(GRUCell):
                                  K.dot(r * prev_sampled_output, self.recurrent_kernel_y))
 
             output = z * h_tm1 + (1. - z) * hh
-
-            sys.stdout.write("$$$ I'm inside f** techer forcing and about to return!")
-            sys.stdout.flush()
 
             return K.stack([output, output])
 
@@ -492,7 +364,7 @@ class TerminalGRU(GRUCell):
 
             prev_layer_input = h[0:1, :, :]
 
-            if self.implementation == 1:
+            if self.implementation == 0:
                 x_z = prev_layer_input[0, :, :self.units]
                 x_r = prev_layer_input[0, :, self.units: 2 * self.units]
                 x_h = prev_layer_input[0, :, 2 * self.units:]
@@ -517,7 +389,5 @@ class TerminalGRU(GRUCell):
                                             free_running(h, states))
 
         output_2d_tensor = K.squeeze(output_2d_tensor, 1)
-        sys.stdout.write("%%%% I'm inside free run and about to return!")
-        sys.stdout.flush()
 
         return output_2d_tensor, [output_2d_tensor]
