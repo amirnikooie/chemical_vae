@@ -110,7 +110,7 @@ if K.backend() == 'tensorflow':
 else:
     raise NotImplemented("Backend not implemented")
 
-class TerminalGRU(GRUCell):
+class TerminalGRU(GRU):
     # Heavily adapted from GRU in recurrent.py
     # Implements professor forcing
 
