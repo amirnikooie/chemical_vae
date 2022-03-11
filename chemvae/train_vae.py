@@ -387,9 +387,9 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
-    sys.stdout.write(model_encoder_training.summary())
+    sys.stdout.write(AE_PP_model.summary())
     sys.stdout.flush()
-    
+
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
                          epochs=params['epochs'],
