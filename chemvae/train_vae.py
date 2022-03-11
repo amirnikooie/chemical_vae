@@ -194,13 +194,8 @@ def load_models(params):
 
     # Decoder
     if params['do_tgru']:
-        sys.stdout.write("^^^ I'm in calling deocoder and here's the x_in:\n" + str(x_in) + "!!\n")
-        sys.stdout.flush()
         x_out = decoder([z_samp, x_in])
-
     else:
-        sys.stdout.write("??? I'm wrongly here!!!\n")
-        sys.stdout.flush()
         x_out = decoder(z_samp)
 
     x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
@@ -392,6 +387,9 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
+    sys.stdout.write(model_encoder_training.summary())
+    sys.stdout.flush()
+    
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
                          epochs=params['epochs'],
