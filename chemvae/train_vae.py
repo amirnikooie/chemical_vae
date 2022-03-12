@@ -387,7 +387,7 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
-    sys.stdout.write(str(AE_PP_model.summary()))
+    sys.stdout.write(str(AE_PP_model.summary(show_trainable=True)))
     sys.stdout.flush()
 
     AE_PP_model.fit(X_train, model_train_targets,
