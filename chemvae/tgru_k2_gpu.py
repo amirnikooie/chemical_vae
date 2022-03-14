@@ -203,6 +203,10 @@ class TerminalGRU(GRU):
 
         # all of this is copied from GRU, except for one part commented below
 
+        if self.stateful:
+            sys.stdout.write("%%%%%%%%%% What!!!!! What!!!! Why???????")
+            sys.stdout.flush()
+
         batch_size = input_shape[0] if self.stateful else None
         #self.input_dim = input_shape[2]
         self.input_spec = [InputSpec(shape=(batch_size, None, self.input_dim)),
@@ -321,6 +325,9 @@ class TerminalGRU(GRU):
         true_seq = inputs[1]
         if self.stateful:
             initial_states = self.states
+
+            sys.stdout.write("%%%%%%%%%%I'm in the call! What!!!!! What!!!! Why???????")
+            sys.stdout.flush()
         else:
             initial_states = self.get_initial_states(X)
 
