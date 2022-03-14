@@ -163,7 +163,4 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
     axes = [1, 0] + list(range(2, len(outputs.get_shape())))
     outputs = tf.transpose(outputs, axes)
 
-    sys.stdout.write("7575755757" + str(outputs.shape) + "\n!!!")
-    sys.stdout.flush()
-
     return last_output, outputs, new_states

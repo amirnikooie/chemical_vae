@@ -55,6 +55,7 @@ from tensorflow.keras.layers import Layer
 # I added this class to replace Lambda layers that are used to mimic identity matrix. In tf v2.x it is
 # highly recommended not to be used for variables that should be trained, because
 # it deserializes them and they will not appear in trainable_weights.
+
 class IdentityLayer(Layer):
     def __init__(self, **kwargs):
         super(IdentityLayer, self).__init__(**kwargs)
@@ -178,7 +179,7 @@ def load_models(params):
     #    return tf.identity(x)
 
     # def K_params with kl_loss_var
-    kl_loss_var = tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
+    kl_loss_var = K.variable(params['kl_loss_weight']) #tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
                                                                                                                # to what we have in model summary where SamplingLayer should have no trainable parameter.
 
     if params['reload_model'] == True:
