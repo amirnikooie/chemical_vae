@@ -480,10 +480,6 @@ class TerminalGRU(GRU):
 
             output = z * h_tm1 + (1. - z) * hh
 
-            dd = K.stack([output, output])    
-            sys.stdout.write("8585858585858" + str(dd.shape) + "\n")
-            sys.stdout.flush()
-
             return K.stack([output, output])
 
         def free_running(h, states):
