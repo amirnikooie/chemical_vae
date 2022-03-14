@@ -203,12 +203,11 @@ class TerminalGRU(GRU):
 
         # all of this is copied from GRU, except for one part commented below
 
-        if self.stateful:
-            sys.stdout.write("%%%%%%%%%% What!!!!! What!!!! Why???????")
-            sys.stdout.flush()
-
         batch_size = input_shape[0] if self.stateful else None
         #self.input_dim = input_shape[2]
+        sys.stdout.write("#### This is batch size: " + str(batch_size) + "!!!!\n")
+        sys.stdout.flush()
+
         self.input_spec = [InputSpec(shape=(batch_size, None, self.input_dim)),
                            InputSpec(shape=(batch_size, None, self.units))]
         self.state_spec = InputSpec(shape=(batch_size, self.units))
@@ -313,11 +312,11 @@ class TerminalGRU(GRU):
             return x
 
     def call(self, inputs, mask=None, **kwargs):
-        sys.stdout.write(str(type(inputs))+"!!\n")
-        sys.stdout.flush()
+        #sys.stdout.write(str(type(inputs))+"!!\n")
+        #sys.stdout.flush()
 
-        sys.stdout.write(str(inputs)+"@@@\n")
-        sys.stdout.flush()
+        #sys.stdout.write(str(inputs)+"@@@\n")
+        #sys.stdout.flush()
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
@@ -325,9 +324,6 @@ class TerminalGRU(GRU):
         true_seq = inputs[1]
         if self.stateful:
             initial_states = self.states
-
-            sys.stdout.write("%%%%%%%%%%I'm in the call! What!!!!! What!!!! Why???????")
-            sys.stdout.flush()
         else:
             initial_states = self.get_initial_states(X)
 
