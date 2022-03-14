@@ -219,7 +219,7 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     z_mean_log_var_output = Concatenate(
         name='z_mean_log_var')([z_mean, z_log_var])
 
-    z_samp = SamplingLayer(params, kl_loss_var)([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
+    z_samp = SamplingLayer(params, kl_loss_var, name='sampling_latent_space')([z_mean, z_log_var])  #z_samp = Lambda(sampling)([z_mean, z_log_var])
 
     if params['batchnorm_vae']:
         z_samp = BatchNormalization(axis=-1)(z_samp)

@@ -297,9 +297,9 @@ class TerminalGRU(GRU):
 
     def preprocess_input(self, x): #
         if self.implementation == 1: #self.consume_less == 'cpu':
-            #input_shape = self.input_spec[0].shape
-            input_dim = self.input_dim#input_shape[2]
-            timesteps = self.time_step#input_shape[1]
+            input_shape = self.input_spec[0].shape
+            input_dim = input_shape[2]#self.input_dim#
+            timesteps = input_shape[1] #self.time_step
 
             x_z = time_distributed_dense(x, self.W_z, self.b_z, self.dropout_W,
                                          input_dim, self.output_dim, timesteps)
@@ -479,6 +479,10 @@ class TerminalGRU(GRU):
                                  K.dot(r * prev_sampled_output, self.recurrent_kernel_y))
 
             output = z * h_tm1 + (1. - z) * hh
+
+            dd = K.stack([output, output])    
+            sys.stdout.write("8585858585858" + str(dd.shape) + "\n")
+            sys.stdout.flush()
 
             return K.stack([output, output])
 

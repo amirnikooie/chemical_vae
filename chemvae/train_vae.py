@@ -174,11 +174,12 @@ def vectorize_data(params):
 def load_models(params):
 
     # identity matrix replaced in IdentityLayer class above
-    def identity(x):
-        return tf.identity(x)
+    #def identity(x):
+    #    return tf.identity(x)
 
     # def K_params with kl_loss_var
-    kl_loss_var = K.variable(params['kl_loss_weight'])
+    kl_loss_var = tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
+                                                                                                               # to what we have in model summary where SamplingLayer should have no trainable parameter.
 
     if params['reload_model'] == True:
         encoder = load_encoder(params)
