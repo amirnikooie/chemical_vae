@@ -375,6 +375,8 @@ class TerminalGRU(GRU):
                                                    mask=None)
 
         if self.return_sequences:
+            sys.stdout.write("######" + str(outputs.shape) + "!!!\n")
+            sys.stdout.flush()
             return outputs
         else:
             return last_output
