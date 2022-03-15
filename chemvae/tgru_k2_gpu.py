@@ -307,7 +307,7 @@ class TerminalGRU(GRU):
         else:
             return x
 
-    def call(self, inputs, mask=None, **kwargs):
+    def call(self, inputs, mask=None):
         sys.stdout.write(str(inputs[0]) + "!!\n")
         sys.stdout.flush()
 
