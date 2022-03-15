@@ -200,7 +200,7 @@ def load_models(params):
     else:
         x_out = decoder(z_samp)
 
-    x_out = IdentityLayer(name='x_pred')(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
+    x_out = IdentityLayer(name='x_pred', trainable=False)(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
     model_outputs = [x_out, z_mean_log_var_output]
 
     AE_only_model = Model(x_in, model_outputs)
@@ -215,20 +215,20 @@ def load_models(params):
                 ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 )):
 
             reg_prop_pred, logit_prop_pred   = property_predictor(z_mean)
-            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
-            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            reg_prop_pred = IdentityLayer(name='reg_prop_pred', trainable=False)(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            logit_prop_pred = IdentityLayer(name='logit_prop_pred', trainable=False)(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.extend([reg_prop_pred,  logit_prop_pred])
 
         # regression only scenario
         elif ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0 ):
             reg_prop_pred = property_predictor(z_mean)
-            reg_prop_pred = IdentityLayer(name='reg_prop_pred')(reg_prop_pred)  #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            reg_prop_pred = IdentityLayer(name='reg_prop_pred', trainable=False)(reg_prop_pred)  #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
             model_outputs.append(reg_prop_pred)
 
         # logit only scenario
         elif ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 ):
             logit_prop_pred = property_predictor(z_mean)
-            logit_prop_pred = IdentityLayer(name='logit_prop_pred')(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            logit_prop_pred = IdentityLayer(name='logit_prop_pred', trainable=False)(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.append(logit_prop_pred)
 
         else:
