@@ -285,7 +285,6 @@ def main_no_prop(params):
 
 def main_property_run(params):
     start_time = time.time()
-
     # load data
     X_train, X_test, Y_train, Y_test = vectorize_data(params)
 
@@ -390,6 +389,8 @@ if __name__ == "__main__":
 
     params = hyperparameters.load_params(args['exp_file'])
     print("All params:", params)
+
+    tf.compat.v1.disable_v2_behavior()
 
     if params['do_prop_pred'] :
         main_property_run(params)
