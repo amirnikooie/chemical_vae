@@ -98,7 +98,7 @@ def time_distributed_dense(x, w, b=None, dropout=None,
 
 #from .my_gru import GRU2
 import tensorflow as tf
-from tensorflow.keras.layers import GRU
+from tensorflow.keras.layers import GRUCell
 from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
 from tensorflow.python.keras.engine.input_spec import InputSpec
@@ -110,7 +110,7 @@ if K.backend() == 'tensorflow':
 else:
     raise NotImplemented("Backend not implemented")
 
-class TerminalGRU(GRU):
+class TerminalGRU(GRUCell):
     # Heavily adapted from GRU in recurrent.py
     # Implements professor forcing
 
@@ -310,9 +310,10 @@ class TerminalGRU(GRU):
             return x
 
     def call(self, inputs, mask=None, **kwargs):
-        sys.stdout.write(str(inputs[0]))
+
+        sys.stdout.write(str(inputs[0]) + "\n!")
         sys.stdout.flush()
-        
+
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
