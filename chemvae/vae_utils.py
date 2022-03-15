@@ -252,7 +252,7 @@ class VAEUtils(object):
 
         return Z, data
 
-    def smiles_to_hot(self, smiles, canonize_smiles=True, check_smiles=False):
+    def smiles_to_hot(self, smiles, canonize_smiles=False, check_smiles=False):
         if isinstance(smiles, str):
             smiles = [smiles]
 

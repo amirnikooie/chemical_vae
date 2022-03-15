@@ -1,30 +1,13 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, RepeatVector, Dropout
-from tensorflow.keras.layers import Conv1D #
-from tensorflow.keras.layers import GRU
-from tensorflow.keras.layers import BatchNormalization, Layer, Lambda
-from tensorflow.keras.models import load_model
-from tensorflow.keras.layers import Concatenate
-from tensorflow.keras import backend as K
-from tensorflow.keras import Model, Input
+from keras.layers import Input, Lambda
+from keras.layers.core import Dense, Flatten, RepeatVector, Dropout
+from keras.layers.convolutional import Convolution1D
+from keras.layers.recurrent import GRU
+from keras.layers.normalization import BatchNormalization
+from keras.models import load_model
+from keras import backend as K
+from keras.models import Model
+from keras.layers.merge import Concatenate
 from .tgru_k2_gpu import TerminalGRU
-
-
-# I added this class to replace Lambda layers that are used for sampling the latent space. In tf v2.x it is
-# highly recommended not to be used for variables that should be trained, because
-# it deserializes them and they will not appear in trainable_weights.
-
-class SamplingLayer(Layer):
-    def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
-        super(SamplingLayer, self).__init__(**kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
-        self.shape0 = params['batch_size']
-        self.shape1 = params['hidden_dim']
-        self.kl_loss = kl_loss_var
-    def call(self, args):
-        z_mean, z_log_var = args
-        epsilon = tf.random.normal(shape=(self.shape0, self.shape1))
-        z_rand = z_mean + K.exp(z_log_var / 2) * self.kl_loss * epsilon
-        return K.in_train_phase(z_rand, z_mean) ### Double check function names ,etc.
 
 
 # =============================
@@ -36,21 +19,21 @@ def encoder_model(params):
         'NCHARS']), name='input_molecule_smi')
 
     # Convolution layers
-    x = Conv1D(int(params['conv_dim_depth'] *
+    x = Convolution1D(int(params['conv_dim_depth'] *
                           params['conv_d_growth_factor']),
                       int(params['conv_dim_width'] *
                           params['conv_w_growth_factor']),
-                      activation='tanh',
+                      activation=params['conv_activation'],
                       name="encoder_conv0")(x_in)
     if params['batchnorm_conv']:
         x = BatchNormalization(axis=-1, name="encoder_norm0")(x)
 
     for j in range(1, params['conv_depth'] - 1):
-        x = Conv1D(int(params['conv_dim_depth'] *
+        x = Convolution1D(int(params['conv_dim_depth'] *
                               params['conv_d_growth_factor'] ** (j)),
                           int(params['conv_dim_width'] *
                               params['conv_w_growth_factor'] ** (j)),
-                          activation='tanh',
+                          activation=params['conv_activation'],
                           name="encoder_conv{}".format(j))(x)
         if params['batchnorm_conv']:
             x = BatchNormalization(axis=-1,
@@ -93,10 +76,8 @@ def load_encoder(params):
     # encoder.load_weights(params['encoder_weights_file'])
     # return encoder
     # !# not sure if this is the right format
-
-    #tf.compat.v1.disable_v2_behavior() # model trained in tf1
-    #return tf.compat.v1.keras.models.load_model(params['encoder_weights_file'])
     return load_model(params['encoder_weights_file'])
+
 
 # ===========================================
 # Decoder functions
@@ -135,13 +116,13 @@ def decoder_model(params):
     # Encoder parts using GRUs
     if params['gru_depth'] > 1:
         x_dec = GRU(params['recurrent_dim'],
-                    return_sequences=True, activation='tanh', reset_after=False,
+                    return_sequences=True, activation='tanh',
                     name="decoder_gru0"
                     )(z_reps)
 
         for k in range(params['gru_depth'] - 2):
             x_dec = GRU(params['recurrent_dim'],
-                        return_sequences=True, activation='tanh', reset_after=False,
+                        return_sequences=True, activation='tanh',
                         name="decoder_gru{}".format(k + 1)
                         )(x_dec)
 
@@ -149,14 +130,14 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
-                                return_sequences=True, reset_after=False,
-                                activation=params['terminal_GRU_activation'],
+                                return_sequences=True,
+                                activation='softmax',
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, reset_after=False, activation=params['terminal_GRU_activation'],
+                        return_sequences=True, activation='softmax',
                         name='decoder_gru_final')(x_dec)
 
     else:
@@ -164,14 +145,14 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
-                                return_sequences=True, reset_after=False,
-                                activation=params['terminal_GRU_activation'],
+                                return_sequences=True,
+                                activation='softmax',
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([z_reps, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, reset_after=False, activation=params['terminal_GRU_activation'],
+                        return_sequences=True, activation='softmax',
                         name='decoder_gru_final'
                         )(z_reps)
 
@@ -183,8 +164,6 @@ def decoder_model(params):
 
 def load_decoder(params):
     if params['do_tgru']:
-        #tf.compat.v1.disable_v2_behavior() # model trained in tf1
-        #return tf.compat.v1.keras.models.load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU})
         return load_model(params['decoder_weights_file'], custom_objects={'TerminalGRU': TerminalGRU})
     else:
         return load_model(params['decoder_weights_file'])
@@ -199,17 +178,15 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     # @inp enc : output generated by encoding
     # @inp params : parameter dictionary passed throughout entire model.
 
+    def sampling(args):
+        z_mean, z_log_var = args
 
-    #=== old Keras version now replaced by SamplingLayer class on top
+        epsilon = K.random_normal_variable(shape=(params['batch_size'], params['hidden_dim']),
+                                           mean=0., scale=1.)
+        # insert kl loss here
 
-#    def sampling(args):
-#        z_mean, z_log_var = args
-#
-#        epsilon = tf.random.normal(shape=(params['batch_size'], params['hidden_dim']))#, mean=0., scale=1.) # K.random_normal_variable
-#        # insert kl loss here
-#
-#        z_rand = z_mean + K.exp(z_log_var / 2) * kl_loss_var * epsilon
-#        return K.in_train_phase(z_rand, z_mean)
+        z_rand = z_mean + K.exp(z_log_var / 2) * kl_loss_var * epsilon
+        return K.in_train_phase(z_rand, z_mean)
 
 
     # variational encoding
@@ -219,7 +196,7 @@ def variational_layers(z_mean, enc, kl_loss_var, params):
     z_mean_log_var_output = Concatenate(
         name='z_mean_log_var')([z_mean, z_log_var])
 
-    z_samp = SamplingLayer(params, kl_loss_var, name='sampling_latent_space', trainable=False)([z_mean, z_log_var]) #Lambda(sampling)([z_mean, z_log_var])#  #z_samp = Lambda(sampling)([z_mean, z_log_var])
+    z_samp = Lambda(sampling)([z_mean, z_log_var])
 
     if params['batchnorm_vae']:
         z_samp = BatchNormalization(axis=-1)(z_samp)
@@ -256,7 +233,7 @@ def property_predictor_model(params):
 
     # for regression tasks
     if ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0):
-        reg_prop_pred = Dense(len(params['reg_prop_tasks']), activation=params['reg_prop_pred_flayer_activation'],
+        reg_prop_pred = Dense(len(params['reg_prop_tasks']), activation='linear',
                               name='reg_property_output')(prop_mid)
 
     # for logistic tasks
@@ -280,6 +257,4 @@ def property_predictor_model(params):
 
 
 def load_property_predictor(params):
-    #tf.compat.v1.disable_v2_behavior() # model trained in tf1
-    #return tf.compat.v1.keras.models.load_model(params['prop_pred_weights_file'])
     return load_model(params['prop_pred_weights_file'])

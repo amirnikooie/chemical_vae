@@ -14,56 +14,27 @@ encoder and decoder portions of the network
 import argparse
 import numpy as np
 import tensorflow as tf
-import sys
-
-# TF V1.x syntax:
-'''
-tf.ConfigProto()
+config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
 config.gpu_options.allow_growth = True
-'''
-
-# TF V2.x syntax:
-# Allowing memory growth for all allocated GPUs while running in TF V2.x
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-  try:
-    for gpu in gpus:
-      #tf.config.experimental.set_memory_growth(gpu, True)
-      tf.config.set_logical_device_configuration(gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=16384)])
-  except RuntimeError as e:
-    print(e)
-
-tf.compat.v1.disable_eager_execution()
-
 import yaml
 import time
 import os
-from tensorflow.keras import backend as K # changing to tf.keras because of version 2.x
-from tensorflow.keras import Model
-from tensorflow.python.keras.optimizers import SGD, Adam, RMSprop
+from keras import backend as K
+from keras.models import Model
+from keras.optimizers import SGD, Adam, RMSprop
 from . import hyperparameters
 from . import mol_utils as mu
 from . import mol_callbacks as mol_cb
-from tensorflow.keras.callbacks import CSVLogger
+from keras.callbacks import CSVLogger
 from .models import encoder_model, load_encoder
 from .models import decoder_model, load_decoder
 from .models import property_predictor_model, load_property_predictor
 from .models import variational_layers
 from functools import partial
-from tensorflow.keras.layers import Layer
+from keras.layers import Lambda
+import sys
 
-
-# I added this class to replace Lambda layers that are used to mimic identity matrix. In tf v2.x it is
-# highly recommended not to be used for variables that should be trained, because
-# it deserializes them and they will not appear in trainable_weights.
-
-class IdentityLayer(Layer):
-    def __init__(self, **kwargs):
-        super(IdentityLayer, self).__init__(**kwargs)
-
-    def call(self, invar):
-      return tf.identity(invar)
 
 def vectorize_data(params):
     # @out : Y_train /Y_test : each is list of datasets.
@@ -176,13 +147,11 @@ def vectorize_data(params):
 
 def load_models(params):
 
-    # identity matrix replaced in IdentityLayer class above
-    #def identity(x):
-    #    return tf.identity(x)
+    def identity(x):
+        return K.identity(x)
 
     # def K_params with kl_loss_var
-    kl_loss_var = K.variable(params['kl_loss_weight']) #tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
-                                                                                                               # to what we have in model summary where SamplingLayer should have no trainable parameter.
+    kl_loss_var = K.variable(params['kl_loss_weight'])
 
     if params['reload_model'] == True:
         encoder = load_encoder(params)
@@ -202,7 +171,7 @@ def load_models(params):
     else:
         x_out = decoder(z_samp)
 
-    x_out = IdentityLayer(name='x_pred', trainable=False)(x_out) #Lambda(identity, name='x_pred')(x_out) #IdentityLayer(name='x_pred')(x_out)
+    x_out = Lambda(identity, name='x_pred')(x_out)
     model_outputs = [x_out, z_mean_log_var_output]
 
     AE_only_model = Model(x_in, model_outputs)
@@ -217,20 +186,20 @@ def load_models(params):
                 ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 )):
 
             reg_prop_pred, logit_prop_pred   = property_predictor(z_mean)
-            reg_prop_pred = IdentityLayer(name='reg_prop_pred', trainable=False)(reg_prop_pred) #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
-            logit_prop_pred = IdentityLayer(name='logit_prop_pred', trainable=False)(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            reg_prop_pred = Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            logit_prop_pred = Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.extend([reg_prop_pred,  logit_prop_pred])
 
         # regression only scenario
         elif ('reg_prop_tasks' in params) and (len(params['reg_prop_tasks']) > 0 ):
             reg_prop_pred = property_predictor(z_mean)
-            reg_prop_pred = IdentityLayer(name='reg_prop_pred', trainable=False)(reg_prop_pred)  #Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
+            reg_prop_pred = Lambda(identity, name='reg_prop_pred')(reg_prop_pred)
             model_outputs.append(reg_prop_pred)
 
         # logit only scenario
         elif ('logit_prop_tasks' in params) and (len(params['logit_prop_tasks']) > 0 ):
             logit_prop_pred = property_predictor(z_mean)
-            logit_prop_pred = IdentityLayer(name='logit_prop_pred', trainable=False)(logit_prop_pred) #Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
+            logit_prop_pred = Lambda(identity, name='logit_prop_pred')(logit_prop_pred)
             model_outputs.append(logit_prop_pred)
 
         else:
@@ -279,7 +248,7 @@ def main_no_prop(params):
             vae_sig_schedule, kl_loss_var, params['kl_loss_weight'], 'vae' )
 
     csv_clb = CSVLogger(params["history_file"], append=False)
-    callbacks = [vae_anneal_callback, csv_clb]
+    callbacks = [ vae_anneal_callback, csv_clb]
 
 
     def vae_anneal_metric(y_true, y_pred):
@@ -374,7 +343,7 @@ def main_property_run(params):
 
     csv_clb = CSVLogger(params["history_file"], append=False)
 
-    callbacks = [vae_anneal_callback, csv_clb]
+    callbacks = [ vae_anneal_callback, csv_clb]
     def vae_anneal_metric(y_true, y_pred):
         return kl_loss_var
 
@@ -393,7 +362,7 @@ def main_property_run(params):
 
     sys.stdout.write(str(AE_PP_model.summary()))
     sys.stdout.flush()
-
+    
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
                          epochs=params['epochs'],
