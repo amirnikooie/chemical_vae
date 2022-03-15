@@ -94,8 +94,6 @@ def time_distributed_dense(x, w, b=None, dropout=None,
         x = K.reshape(x, (-1, timesteps, output_dim))
     return x
 
-
-
 #from .my_gru import GRU2
 import tensorflow as tf
 from tensorflow.keras.layers import GRU
@@ -309,7 +307,7 @@ class TerminalGRU(GRU):
         else:
             return x
 
-    def call(self, inputs, mask=None, **kwargs):
+    def __call__(self, inputs, mask=None, **kwargs):
         sys.stdout.write(str(inputs[0]) + "!!\n")
         sys.stdout.flush()
 
