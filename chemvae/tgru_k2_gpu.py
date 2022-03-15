@@ -101,7 +101,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import GRU
 from tensorflow.keras import backend as K
 from tensorflow.keras import initializers
-from tensorflow.keras.layers import InputSpec
+from tensorflow.python.keras.engine.input_spec import InputSpec
 import numpy as np
 import sys
 
