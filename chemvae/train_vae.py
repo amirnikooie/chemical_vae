@@ -33,7 +33,6 @@ from .models import property_predictor_model, load_property_predictor
 from .models import variational_layers
 from functools import partial
 from keras.layers import Lambda
-import sys
 
 
 def vectorize_data(params):
@@ -360,9 +359,6 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
-    sys.stdout.write(str(AE_PP_model.summary()))
-    sys.stdout.flush()
-    
     AE_PP_model.fit(X_train, model_train_targets,
                          batch_size=params['batch_size'],
                          epochs=params['epochs'],
