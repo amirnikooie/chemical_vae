@@ -34,6 +34,8 @@ if gpus:
   except RuntimeError as e:
     print(e)
 
+tf.compat.v1.disable_eager_execution()
+
 import yaml
 import time
 import os
