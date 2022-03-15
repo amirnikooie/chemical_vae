@@ -15,8 +15,8 @@ from .tgru_k2_gpu import TerminalGRU
 # it deserializes them and they will not appear in trainable_weights.
 
 class SamplingLayer(Layer):
-    def __init__(self, params, kl_loss_var, trainable=False, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
-        super(SamplingLayer, self).__init__(trainable=trainable, **kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
+    def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
+        super(SamplingLayer, self).__init__(**kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
         self.shape0 = params['batch_size']
         self.shape1 = params['hidden_dim']
         self.kl_loss = kl_loss_var
@@ -135,13 +135,13 @@ def decoder_model(params):
     # Encoder parts using GRUs
     if params['gru_depth'] > 1:
         x_dec = GRU(params['recurrent_dim'],
-                    return_sequences=True, activation='tanh',
+                    return_sequences=True, activation='tanh', reset_after=False,
                     name="decoder_gru0"
                     )(z_reps)
 
         for k in range(params['gru_depth'] - 2):
             x_dec = GRU(params['recurrent_dim'],
-                        return_sequences=True, activation='tanh',
+                        return_sequences=True, activation='tanh', reset_after=False,
                         name="decoder_gru{}".format(k + 1)
                         )(x_dec)
 
@@ -149,14 +149,14 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
-                                return_sequences=True,
+                                return_sequences=True, reset_after=False,
                                 activation=params['terminal_GRU_activation'],
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, activation=params['terminal_GRU_activation'],
+                        return_sequences=True, reset_after=False, activation=params['terminal_GRU_activation'],
                         name='decoder_gru_final')(x_dec)
 
     else:
@@ -164,14 +164,14 @@ def decoder_model(params):
             x_out = TerminalGRU(params['NCHARS'],
                                 rnd_seed=params['RAND_SEED'],
                                 recurrent_dropout=params['tgru_dropout'],
-                                return_sequences=True,
+                                return_sequences=True, reset_after=False,
                                 activation=params['terminal_GRU_activation'],
                                 temperature=0.01,
                                 name='decoder_tgru',
                                 implementation=params['terminal_GRU_implementation'])([z_reps, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
-                        return_sequences=True, activation=params['terminal_GRU_activation'],
+                        return_sequences=True, reset_after=False, activation=params['terminal_GRU_activation'],
                         name='decoder_gru_final'
                         )(z_reps)
 
