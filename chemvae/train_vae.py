@@ -179,7 +179,7 @@ def load_models(params):
     #    return tf.identity(x)
 
     # def K_params with kl_loss_var
-    kl_loss_var = K.variable(params['kl_loss_weight'], trainable=False) #tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
+    kl_loss_var = K.variable(params['kl_loss_weight']) #tf.Variable(params['kl_loss_weight'], trainable=False) #K.variable(params['kl_loss_weight']) # The reason I used tf.Variable is to make sure it is not trainable and be matched
                                                                                                                # to what we have in model summary where SamplingLayer should have no trainable parameter.
 
     if params['reload_model'] == True:
