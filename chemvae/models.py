@@ -15,8 +15,8 @@ from .tgru_k2_gpu import TerminalGRU
 # it deserializes them and they will not appear in trainable_weights.
 
 class SamplingLayer(Layer):
-    def __init__(self, params, kl_loss_var, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
-        super(SamplingLayer, self).__init__(**kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
+    def __init__(self, params, kl_loss_var, trainable=False, **kwargs): # these vars obviously go in the first parenthesis when the instance is constructed.
+        super(SamplingLayer, self).__init__(trainable=trainable, **kwargs) ## The point is internal vars are self. but those that are subject to weight are in the 'def call()'.
         self.shape0 = params['batch_size']
         self.shape1 = params['hidden_dim']
         self.kl_loss = kl_loss_var
