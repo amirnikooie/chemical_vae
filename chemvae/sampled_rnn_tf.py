@@ -61,7 +61,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
     import numpy as np
     np.random.seed(random_seed)
     import tensorflow as tf
-    tf.set_random_seed(random_seed)
+    tf.compat.v1.set_random_seed(random_seed)
     from tensorflow.python.ops import tensor_array_ops
     from tensorflow.python.ops import control_flow_ops
     from tensorflow.python.framework import constant_op
@@ -80,7 +80,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
 
     # this switches dims to (time, samples, ...)
     axes = [1, 0] + list(range(2, ndim))
-    inputs = tf.transpose(inputs, (axes))
+    inputs = tf.transpose(a=inputs, perm=(axes))
 
     if go_backwards:
         inputs = reverse(inputs, 0)
@@ -89,15 +89,15 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
 
     # inputs shape: (time, samples, output_dims -- may be 3xoutput
     # because of cpu implementation)
-    time_steps = tf.shape(inputs)[0]
+    time_steps = tf.shape(input=inputs)[0]
 
     # Calculate one time step first
     # Generate a random cutoff probability for comparing to the cdf probility
     #   Generates one for each sample in the batch
 
-    num_samples = tf.shape(inputs)[1]
+    num_samples = tf.shape(input=inputs)[1]
     output_dim = int(initial_states[0].get_shape()[-1])
-    random_cutoff_prob = tf.random_uniform(
+    random_cutoff_prob = tf.random.uniform(
         (num_samples,), minval=0., maxval=1.)
 
     # Ignore constants for the first run
@@ -128,7 +128,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
             Tuple: `(time + 1,output_ta_t) + tuple(new_states)`
         """
         current_input = input_ta.read(time)
-        random_cutoff_prob = tf.random_uniform(
+        random_cutoff_prob = tf.random.uniform(
             (num_samples,), minval=0, maxval=1)
 
         output, new_states = step_function(current_input,
@@ -137,7 +137,7 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
                                             'rec_dp_mask': rec_dp_constants})
         # returned output is ( raw/sampled, batch, output_dim)
         axes = [1, 0] + list(range(2, K.ndim(output)))
-        output = tf.transpose(output, (axes))
+        output = tf.transpose(a=output, perm=(axes))
         for state, new_state in zip(states, new_states):
             new_state.set_shape(state.get_shape())
         output_ta_t = output_ta_t.write(time, output)
@@ -161,6 +161,6 @@ def sampled_rnn(step_function, inputs, initial_states, units, random_seed,
 
     # outputs is switched back to (samples, timesteps, output_dims)
     axes = [1, 0] + list(range(2, len(outputs.get_shape())))
-    outputs = tf.transpose(outputs, axes)
+    outputs = tf.transpose(a=outputs, perm=axes)
 
     return last_output, outputs, new_states
