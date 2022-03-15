@@ -64,7 +64,7 @@ self.implementation ==0 : cpu
 
 ##### I'm sticking with CPU and thus the original code. For fully adapting v2 and gpu I will not use this code and probably move to LSTM or Attention based anywayself.
 def time_distributed_dense(x, w, b=None, dropout=None,
-                           input_dim=None, output_dim=None, timesteps=None):
+                           input_dim=None, output_dim=None, timesteps=None, training=None):
     '''Apply y.w + b for every temporal slice y of x.
     '''
     if not input_dim:
@@ -85,10 +85,10 @@ def time_distributed_dense(x, w, b=None, dropout=None,
     x = K.reshape(x, (-1, input_dim))
     x = K.dot(x, w)
     if b is not None:
-        x = x + b
+        x = K.bias_add(x, b)
     # reshape to 3D tensor
     if K.backend() == 'tensorflow':
-        x = K.reshape(x, tf.stack([-1, timesteps, output_dim]))
+        x = K.reshape(x, K.stack([-1, timesteps, output_dim]))
         x.set_shape([None, None, output_dim])
     else:
         x = K.reshape(x, (-1, timesteps, output_dim))
@@ -205,8 +205,6 @@ class TerminalGRU(GRU):
 
         batch_size = input_shape[0] if self.stateful else None
         #self.input_dim = input_shape[2]
-        sys.stdout.write("#### This is batch size: " + str(batch_size) + "!!!!\n")
-        sys.stdout.flush()
 
         self.input_spec = [InputSpec(shape=(batch_size, None, self.input_dim)),
                            InputSpec(shape=(batch_size, None, self.units))]
@@ -297,7 +295,7 @@ class TerminalGRU(GRU):
 
     def preprocess_input(self, x): #
         if self.implementation == 1: #self.consume_less == 'cpu':
-            input_shape = self.input_spec[0].shape
+            input_shape = K.int_shape(x)#self.input_spec[0].shape
             input_dim = input_shape[2]#self.input_dim#
             timesteps = input_shape[1] #self.time_step
 
@@ -312,16 +310,12 @@ class TerminalGRU(GRU):
             return x
 
     def call(self, inputs, mask=None, **kwargs):
-        #sys.stdout.write(str(type(inputs))+"!!\n")
-        #sys.stdout.flush()
-
-        #sys.stdout.write(str(inputs)+"@@@\n")
-        #sys.stdout.flush()
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
         X = inputs[0]
         true_seq = inputs[1]
+
         if self.stateful:
             initial_states = self.states
         else:
@@ -375,8 +369,6 @@ class TerminalGRU(GRU):
                                                    mask=None)
 
         if self.return_sequences:
-            sys.stdout.write("######" + str(outputs.shape) + "!!!\n")
-            sys.stdout.flush()
             return outputs
         else:
             return last_output
