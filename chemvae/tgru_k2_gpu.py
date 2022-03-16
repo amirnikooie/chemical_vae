@@ -346,7 +346,7 @@ class TerminalGRU(GRU):
         # preprocessing makes input into right form for gpu/cpu settings
         # from original GRU code
         recurrent_dropout_constants = self.get_constants(X)[0]
-        preprocessed_input = tf.constant(self.preprocess_input(X))
+        preprocessed_input = tf.Variable(self.preprocess_input(X), trainable=False)
 
         #################
         ## Section for index matching of true inputs
@@ -364,9 +364,9 @@ class TerminalGRU(GRU):
 
         ## concatenate to have same dimension as preprocessed inputs 3xoutput_dim
         # only for self.implementation = 0?
-        shifted_raw_inputs = tf.constant(K.concatenate([shifted_raw_inputs,
+        shifted_raw_inputs = tf.Variable(K.concatenate([shifted_raw_inputs,
                                             shifted_raw_inputs,
-                                            shifted_raw_inputs], axis=2))
+                                            shifted_raw_inputs], axis=2), trainable=False)
 
         all_inputs = K.stack([preprocessed_input, shifted_raw_inputs])
         num_dim = K.ndim(all_inputs)
