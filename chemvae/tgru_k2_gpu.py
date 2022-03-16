@@ -312,7 +312,7 @@ class TerminalGRU(GRU):
         #sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
         #sys.stdout.flush()
 
-        sys.stdout.write("This is the Type of input: " + str(type(inputs[0])) + " +++ " + str(type(inputs[1])) "!!\n")
+        sys.stdout.write("This is the Type of input: " + str(type(inputs[0])) + " +++ " + str(type(inputs[1])) + "!!\n")
         sys.stdout.flush()
 
         sys.stdout.write("This is the LENGTH of the input: " + str(len(inputs)) + "!!\n")
