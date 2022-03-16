@@ -426,8 +426,8 @@ if __name__ == "__main__":
     print("All params:", params)
 
     #tf.compat.v1.disable_eager_execution()
-    tf.compat.v1.disable_v2_behavior()
-    
+    #tf.compat.v1.disable_v2_behavior()
+
     if params['do_prop_pred'] :
         main_property_run(params)
     else:
