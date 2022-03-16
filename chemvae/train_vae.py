@@ -274,7 +274,7 @@ def main_no_prop(params):
                     initial_epoch=params['prev_epochs'],
                     callbacks=callbacks,
                     verbose=keras_verbose,
-                    validation_data=[ X_test, model_test_targets]
+                    validation_data=(X_test, model_test_targets)
                     )
 
     encoder.save(params['encoder_weights_file'], save_format='h5')
@@ -364,7 +364,7 @@ def main_property_run(params):
                          initial_epoch=params['prev_epochs'],
                          callbacks=callbacks,
                          verbose=keras_verbose,
-         validation_data=[X_test, model_test_targets]
+         validation_data=(X_test, model_test_targets)
      )
 
     encoder.save(params['encoder_weights_file'], save_format='h5')
