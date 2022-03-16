@@ -309,7 +309,7 @@ class TerminalGRU(GRU):
 
     def call(self, inputs, mask=None, **kwargs):
 
-        sys.stdout.write("$$$$This is initial state: " + str(self.initial_state)+ " !!\n")
+        sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
         sys.stdout.flush()
 
         sys.stdout.write(str(inputs[0]) + "!!\n")
