@@ -312,7 +312,10 @@ class TerminalGRU(GRU):
         #sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
         #sys.stdout.flush()
 
-        sys.stdout.write(str(inputs[0]) + "!!\n")
+        sys.stdout.write("This is input [0]: " + str(inputs[0]) + "!!\n")
+        sys.stdout.flush()
+
+        sys.stdout.write("This is input [1]: " + str(inputs[1]) + "!!\n")
         sys.stdout.flush()
 
         if type(inputs) is not list or len(inputs) != 2:
