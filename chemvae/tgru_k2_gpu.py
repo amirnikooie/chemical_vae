@@ -327,6 +327,12 @@ class TerminalGRU(GRU):
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
+        sys.stdout.write("I'm here! Yay!! The function worked perfectly!!\n")
+        sys.stdout.flush()
+
+        sys.stdout.write("This is the Type of input: " + str(type(inputs[0])) + " +++ " + str(type(inputs[1])) + "!!\n")
+        sys.stdout.flush()
+        
         X = inputs[0]
         true_seq = inputs[1]
 
