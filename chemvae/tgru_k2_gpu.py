@@ -311,7 +311,7 @@ class TerminalGRU(GRU):
 
         #sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
         #sys.stdout.flush()
-
+        '''
         sys.stdout.write("This is the Type of input: " + str(type(inputs[0])) + " +++ " + str(type(inputs[1])) + "!!\n")
         sys.stdout.flush()
 
@@ -323,7 +323,7 @@ class TerminalGRU(GRU):
 
         sys.stdout.write("This is input [1]: " + str(inputs[1]) + "!!\n")
         sys.stdout.flush()
-
+        '''
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
