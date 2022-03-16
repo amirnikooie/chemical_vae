@@ -153,7 +153,7 @@ def decoder_model(params):
                                 activation=params['terminal_GRU_activation'],
                                 temperature=0.01,
                                 name='decoder_tgru',
-                                implementation=params['terminal_GRU_implementation'])([x_dec, true_seq_in])
+                                implementation=params['terminal_GRU_implementation'])(true_seq_in)#([x_dec, true_seq_in])
         else:
             x_out = GRU(params['NCHARS'],
                         return_sequences=True, reset_after=False, activation=params['terminal_GRU_activation'],
