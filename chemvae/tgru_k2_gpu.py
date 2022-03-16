@@ -83,7 +83,7 @@ class TerminalGRU(GRU):
                  **kwargs):
         # @param: temperature - sampling temperature
         # Annealing will be handled in the callbacks
-        super(TerminalGRU, self).__init__(units, recurrent_dropout=min(1., max(0., recurrent_dropout), **kwargs)
+        super(TerminalGRU, self).__init__(units, recurrent_dropout=min(1., max(0., recurrent_dropout)), **kwargs)
         #self.units = units
         self.temperature = temperature
         self.rnd_seed = rnd_seed
