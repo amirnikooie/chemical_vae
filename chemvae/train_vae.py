@@ -34,7 +34,6 @@ if gpus:
   except RuntimeError as e:
     print(e)
 
-tf.compat.v1.disable_eager_execution()
 
 import yaml
 import time
@@ -306,7 +305,7 @@ def main_no_prop(params):
                     initial_epoch=params['prev_epochs'],
                     callbacks=callbacks,
                     verbose=keras_verbose,
-                    validation_data=[ X_test, model_test_targets]
+                    validation_data=(X_test, model_test_targets)
                     )
 
     encoder.save(params['encoder_weights_file'])
@@ -400,7 +399,7 @@ def main_property_run(params):
                          initial_epoch=params['prev_epochs'],
                          callbacks=callbacks,
                          verbose=keras_verbose,
-         validation_data=[X_test, model_test_targets]
+         validation_data=(X_test, model_test_targets)
      )
 
     encoder.save(params['encoder_weights_file'])
@@ -426,6 +425,7 @@ if __name__ == "__main__":
     params = hyperparameters.load_params(args['exp_file'])
     print("All params:", params)
 
+    #tf.compat.v1.disable_eager_execution()
     if params['do_prop_pred'] :
         main_property_run(params)
     else:
