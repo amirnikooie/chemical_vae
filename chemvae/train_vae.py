@@ -40,7 +40,7 @@ import time
 import os
 from tensorflow.keras import backend as K # changing to tf.keras because of version 2.x
 from tensorflow.keras import Model
-from tensorflow.python.keras.optimizers import SGD, Adam, RMSprop
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop #from tensorflow.python.keras.optimizers 
 from . import hyperparameters
 from . import mol_utils as mu
 from . import mol_callbacks as mol_cb
