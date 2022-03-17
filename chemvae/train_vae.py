@@ -312,8 +312,8 @@ def main_no_prop(params):
                     validation_data=(X_test, model_test_targets),
                     )
 
-    encoder.save(params['encoder_weights_file'])
-    decoder.save(params['decoder_weights_file'])
+    encoder.save(params['encoder_weights_file'], save_format='h5')
+    decoder.save(params['decoder_weights_file'], save_format='h5')
     print('time of run : ', time.time() - start_time)
     print('**FINISHED**')
     return
@@ -406,9 +406,9 @@ def main_property_run(params):
          validation_data=(X_test, model_test_targets),
      )
 
-    encoder.save(params['encoder_weights_file'])
-    decoder.save(params['decoder_weights_file'])
-    property_predictor.save(params['prop_pred_weights_file'])
+    encoder.save(params['encoder_weights_file'], save_format='h5')
+    decoder.save(params['decoder_weights_file'], save_format='h5')
+    property_predictor.save(params['prop_pred_weights_file'], save_format='h5')
 
     print('time of run : ', time.time() - start_time)
     print('**FINISHED**')

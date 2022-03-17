@@ -123,10 +123,10 @@ class EncoderDecoderCheckpoint(ModelCheckpoint):
                           ' saving model'
                           % (epoch, self.monitor, self.best, current))
                 self.best = current
-                self.encoder.save(os.path.join(self.p['checkpoint_path'], 'encoder_{}.h5'.format(epoch)))
-                self.decoder.save(os.path.join(self.p['checkpoint_path'], 'decoder_{}.h5'.format(epoch)))
+                self.encoder.save(os.path.join(self.p['checkpoint_path'], 'encoder_{}.h5'.format(epoch)), save_format='h5')
+                self.decoder.save(os.path.join(self.p['checkpoint_path'], 'decoder_{}.h5'.format(epoch)), save_format='h5')
                 if self.prop_pred_model is not None:
-                    self.prop_pred_model.save(os.path.join(self.p['checkpoint_path'], 'prop_pred_{}.h5'.format(epoch)))
+                    self.prop_pred_model.save(os.path.join(self.p['checkpoint_path'], 'prop_pred_{}.h5'.format(epoch)), save_format='h5')
             else:
                 if self.verbose > 0:
                     print('Epoch %05d: %s did not improve' %
@@ -134,7 +134,7 @@ class EncoderDecoderCheckpoint(ModelCheckpoint):
         else:
             if self.verbose > 0:
                 print('Epoch %05d: saving model to ' % (epoch))
-            self.encoder.save(os.path.join(self.p['checkpoint_path'], 'encoder_{}.h5'.format(epoch)))
-            self.decoder.save(os.path.join(self.p['checkpoint_path'], 'decoder_{}.h5'.format(epoch)))
+            self.encoder.save(os.path.join(self.p['checkpoint_path'], 'encoder_{}.h5'.format(epoch)), save_format='h5')
+            self.decoder.save(os.path.join(self.p['checkpoint_path'], 'decoder_{}.h5'.format(epoch)), save_format='h5')
             if self.prop_pred_model is not None:
-                self.prop_pred_model.save(os.path.join(self.p['checkpoint_path'], 'prop_pred_{}.h5'.format(epoch)))
+                self.prop_pred_model.save(os.path.join(self.p['checkpoint_path'], 'prop_pred_{}.h5'.format(epoch)), save_format='h5')
