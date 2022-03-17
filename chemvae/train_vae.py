@@ -425,7 +425,7 @@ if __name__ == "__main__":
     params = hyperparameters.load_params(args['exp_file'])
     print("All params:", params)
 
-    tf.compat.v1.disable_eager_execution()
+    #tf.compat.v1.disable_eager_execution()
     #tf.compat.v1.experimental.output_all_intermediates(True)
     #tf.compat.v1.disable_v2_behavior()
 

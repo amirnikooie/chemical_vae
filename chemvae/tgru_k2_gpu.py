@@ -307,11 +307,12 @@ class TerminalGRU(GRU):
         else:
             return x
 
+    @tf.function
     def call(self, inputs, mask=None, **kwargs):
 
         #sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
         #sys.stdout.flush()
-        '''
+
         sys.stdout.write("This is the Type of input: " + str(type(inputs[0])) + " +++ " + str(type(inputs[1])) + "!!\n")
         sys.stdout.flush()
 
@@ -323,7 +324,7 @@ class TerminalGRU(GRU):
 
         sys.stdout.write("This is input [1]: " + str(inputs[1]) + "!!\n")
         sys.stdout.flush()
-        '''
+
         if type(inputs) is not list or len(inputs) != 2:
             raise Exception('terminal gru runs on list of length 2')
 
@@ -346,7 +347,7 @@ class TerminalGRU(GRU):
         # preprocessing makes input into right form for gpu/cpu settings
         # from original GRU code
         recurrent_dropout_constants = self.get_constants(X)[0]
-        preprocessed_input = tf.Variable(self.preprocess_input(X), trainable=False)
+        preprocessed_input = self.preprocess_input(X)
 
         #################
         ## Section for index matching of true inputs
@@ -364,9 +365,9 @@ class TerminalGRU(GRU):
 
         ## concatenate to have same dimension as preprocessed inputs 3xoutput_dim
         # only for self.implementation = 0?
-        shifted_raw_inputs = tf.Variable(K.concatenate([shifted_raw_inputs,
+        shifted_raw_inputs = K.concatenate([shifted_raw_inputs,
                                             shifted_raw_inputs,
-                                            shifted_raw_inputs], axis=2), trainable=False)
+                                            shifted_raw_inputs], axis=2)
 
         all_inputs = K.stack([preprocessed_input, shifted_raw_inputs])
         num_dim = K.ndim(all_inputs)
