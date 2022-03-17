@@ -390,7 +390,7 @@ def main_property_run(params):
                metrics={'x_pred': ['categorical_accuracy',
                     vae_anneal_metric]})
 
-    sys.stdout.write(str(AE_PP_model.summary()))
+    sys.stdout.write(str(AE_PP_model.summary()) + " !!!\n")
     sys.stdout.flush()
 
     AE_PP_model.fit(X_train, model_train_targets,
@@ -425,7 +425,7 @@ if __name__ == "__main__":
     params = hyperparameters.load_params(args['exp_file'])
     print("All params:", params)
 
-    tf.compat.v1.disable_eager_execution()
+    #tf.compat.v1.disable_eager_execution()
     #tf.compat.v1.experimental.output_all_intermediates(True)
     #tf.compat.v1.disable_v2_behavior()
 
