@@ -307,7 +307,7 @@ class TerminalGRU(GRU):
         else:
             return x
 
-    @tf.function
+    #@tf.function
     def call(self, inputs, mask=None, **kwargs):
 
         #sys.stdout.write("$$$$This is initial state: " + str(initial_state)+ " !!\n")
