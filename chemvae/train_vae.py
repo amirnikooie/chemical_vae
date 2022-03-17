@@ -21,7 +21,7 @@ import sys
 tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
 config.gpu_options.allow_growth = True
-'''
+
 
 # TF V2.x syntax:
 # Allowing memory growth for all allocated GPUs while running in TF V2.x
@@ -33,7 +33,11 @@ if gpus:
       tf.config.set_logical_device_configuration(gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=16384)])
   except RuntimeError as e:
     print(e)
+'''
 
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.5
+config.gpu_options.allow_growth = True
 
 import yaml
 import time
