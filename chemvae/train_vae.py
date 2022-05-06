@@ -235,7 +235,7 @@ def load_models(params):
     AE_only_model = Model(x_in, model_outputs)
 
     if params['do_prop_pred']:
-        if params['reload_model'] == True:
+        if params['reload_model'] == True and params['transfer_learn'] == False:
             property_predictor = load_property_predictor(params)
         else:
             property_predictor = property_predictor_model(params)
