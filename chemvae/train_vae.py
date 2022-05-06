@@ -127,23 +127,24 @@ def vectorize_data(params):
     if params['SELFIES']:
         selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
-        X = mu.multiple_selfies_to_hot(selfies_list, largest_selfies_len,
+        X = mu.multiple_selfies_to_hot(selfies_list, MAX_LEN,
                                        selfies_alphabet)
-        MAX_LEN = largest_selfies_len
-        params['MAX_LEN'] = MAX_LEN
+        #MAX_LEN = largest_selfies_len
+        #params['MAX_LEN'] = MAX_LEN
         params['NCHARS'] = len(selfies_alphabet)
+
         with open("alphabet.json", "w") as jf:
             json.dump(selfies_alphabet, jf)
             jf.write('\n')
     else:
         _, _, _, smiles_list, smiles_alphabet, largest_smiles_len = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
-        X = mu.multiple_smile_to_hot(smiles_list, largest_smiles_len,
+        X = mu.multiple_smile_to_hot(smiles_list, MAX_LEN,
                                      smiles_alphabet)
         #X = mu.smiles_to_hot(smiles, MAX_LEN, params[
         #                     'PADDING'], CHAR_INDICES, NCHARS)
-        MAX_LEN = largest_smiles_len
-        params['MAX_LEN'] = MAX_LEN
+        #MAX_LEN = largest_smiles_len
+        #params['MAX_LEN'] = MAX_LEN
         params['NCHARS'] = len(smiles_alphabet)
         with open("alphabet.json", "w") as jf:
             json.dump(smiles_alphabet, jf)
