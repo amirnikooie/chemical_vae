@@ -127,7 +127,7 @@ def vectorize_data(params):
     if params['SELFIES']:
         selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
-        X = mu.multiple_selfies_to_hot(selfies_list, largest_slefies_len,
+        X = mu.multiple_selfies_to_hot(selfies_list, largest_selfies_len,
                                        selfies_alphabet)
         MAX_LEN = largest_selfies_len
         params['MAX_LEN'] = MAX_LEN
