@@ -15,6 +15,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 import sys
+import selfies as sf
 
 # TF V1.x syntax:
 '''
@@ -39,8 +40,8 @@ config = tf.compat.v1.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
 config.gpu_options.allow_growth = True
 
-import yaml
 import time
+import json
 import os
 from tensorflow.keras import backend as K # changing to tf.keras because of version 2.x
 from tensorflow.keras import Model
@@ -77,10 +78,10 @@ def vectorize_data(params):
 
     MAX_LEN = params['MAX_LEN']
 
-    CHARS = yaml.safe_load(open(params['char_file']))
-    params['NCHARS'] = len(CHARS)
-    NCHARS = len(CHARS)
-    CHAR_INDICES = dict((c, i) for i, c in enumerate(CHARS))
+    #CHARS = yaml.safe_load(open(params['char_file']))
+    #params['NCHARS'] = len(CHARS)
+    #NCHARS = len(CHARS)
+    #CHAR_INDICES = dict((c, i) for i, c in enumerate(CHARS))
     #INDICES_CHAR = dict((i, c) for i, c in enumerate(CHARS))
 
     ## Load data for properties
@@ -119,11 +120,34 @@ def vectorize_data(params):
 
     print('Training set size is', len(smiles))
     print('first smiles: \"', smiles[0], '\"')
-    print('total chars:', NCHARS)
+    #print('total chars:', NCHARS)
 
     print('Vectorization...')
-    X = mu.smiles_to_hot(smiles, MAX_LEN, params[
-                             'PADDING'], CHAR_INDICES, NCHARS)
+
+    if params['SELFIES']:
+        selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
+            mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+        X = mu.multiple_selfies_to_hot(selfies_list, largest_slefies_len,
+                                       selfies_alphabet)
+        MAX_LEN = largest_selfies_len
+        params['MAX_LEN'] = MAX_LEN
+        params['NCHARS'] = len(selfies_alphabet)
+        with open("alphabet.json", "w") as jf:
+            json.dump(selfies_alphabet, jf)
+            jf.write('\n')
+    else:
+        _, _, _, smiles_list, smiles_alphabet, largest_smiles_len = \
+            mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+        X = mu.multiple_smile_to_hot(smiles_list, largest_smiles_len,
+                                     smiles_alphabet)
+        #X = mu.smiles_to_hot(smiles, MAX_LEN, params[
+        #                     'PADDING'], CHAR_INDICES, NCHARS)
+        MAX_LEN = largest_smiles_len
+        params['MAX_LEN'] = MAX_LEN
+        params['NCHARS'] = len(smiles_alphabet)
+        with open("alphabet.json", "w") as jf:
+            json.dump(smiles_alphabet, jf)
+            jf.write('\n')
 
     print('Total Data size', X.shape[0])
     if np.shape(X)[0] % params['batch_size'] != 0:

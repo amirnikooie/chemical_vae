@@ -2,12 +2,13 @@ import json
 from collections import OrderedDict
 
 
-def load_params(param_file=None, verbose=True):            
+def load_params(param_file=None, verbose=True):
     parameters = {
 
         # for starting model from a checkpoint
         'reload_model': False,
         'prev_epochs': 0,
+        'SELFIES': False,
 
         # general parameters
         'batch_size': 100,
