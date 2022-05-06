@@ -112,7 +112,7 @@ def get_selfie_and_smiles_encodings_for_dataset(smiles_list):
 
     largest_smiles_len = len(max(smiles_list, key=len))
 
-    print('--> Translating SMILES to SELFIES...')
+    #print('--> Translating SMILES to SELFIES...')
     # Filtering those that violate semantic constraints
     selfies_list = np.array(list(map(mysf_encoder, smiles_list)))
     selfies_list = list(selfies_list[selfies_list!=np.array(None)])
