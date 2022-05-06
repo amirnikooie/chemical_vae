@@ -123,7 +123,7 @@ def get_selfie_and_smiles_encodings_for_dataset(smiles_list):
 
     largest_selfies_len = max(sf.len_selfies(s) for s in selfies_list)
 
-    print('Finished translating SMILES to SELFIES.')
+    #print('Finished translating SMILES to SELFIES.')
 
     return selfies_list, selfies_alphabet, largest_selfies_len, \
            smiles_list, smiles_alphabet, largest_smiles_len
@@ -223,7 +223,7 @@ def hot_to_smiles(hot_x, alphabet, selfies): ## Changed to aplhabet. Work here..
             temp_str += alphabet[index]
         temp_str = temp_str.replace(' ', '')
         if selfies:  # if SELFIES, decode to SMILES
-            temp_str = sf.decoder(temp_str)        
+            temp_str = sf.decoder(temp_str)
         smiles.append(temp_str)
     return smiles
 
