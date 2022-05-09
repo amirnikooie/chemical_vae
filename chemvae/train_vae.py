@@ -118,13 +118,18 @@ def vectorize_data(params):
             if "logit_prop_tasks" in params:
                 Y_logit =  Y_logit[sample_idx]
 
-    print('Training set size is', len(smiles))
-    print('first smiles: \"', smiles[0], '\"')
+    sys.stdout.write('Training set size is ' + str(len(smiles)))
+    sys.stdout.flush()
+
+    #print('first smiles: \"', smiles[0], '\"')
     #print('total chars:', NCHARS)
 
-    print('Vectorization...')
+    sys.stdout.write('Vectorization...')
+    sys.stdout.flush()
 
     if params['SELFIES']:
+        sys.stdout.write('Translating to SELFIES...')
+        sys.stdout.flush()
         selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
         X = mu.multiple_selfies_to_hot(selfies_list, MAX_LEN,
@@ -150,7 +155,9 @@ def vectorize_data(params):
             json.dump(smiles_alphabet, jf)
             jf.write('\n')
 
-    print('Total Data size', X.shape[0])
+    sys.stdout.write('Total Data size ' + str(X.shape[0]))
+    sys.stdout.flush()
+
     if np.shape(X)[0] % params['batch_size'] != 0:
         X = X[:np.shape(X)[0] // params['batch_size']
               * params['batch_size']]
@@ -179,9 +186,9 @@ def vectorize_data(params):
         np.save(params['test_idx_file'], test_idx)
 
     X_train, X_test = X[train_idx], X[test_idx]
-    print('shape of input vector : {}', np.shape(X_train))
-    print('Training set size is {}, after filtering to max length of {}'.format(
-        np.shape(X_train), MAX_LEN))
+    #print('shape of input vector : {}', np.shape(X_train))
+    #print('Training set size is {}, after filtering to max length of {}'.format(
+    #    np.shape(X_train), MAX_LEN))
 
     if params['do_prop_pred']:
         # !# add Y_train and Y_test here
