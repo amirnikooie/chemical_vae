@@ -335,6 +335,9 @@ def main_no_prop(params):
 
     keras_verbose = params['verbose_print']
 
+    sys.stdout.write(str(AE_only_model.summary()) + " !!!\n")
+    sys.stdout.flush()
+
     AE_only_model.fit(X_train, model_train_targets,
                     batch_size=params['batch_size'],
                     epochs=params['epochs'],
