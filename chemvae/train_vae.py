@@ -326,6 +326,10 @@ def main_no_prop(params):
     model_test_targets = {'x_pred':X_test,
         'z_mean_log_var':np.ones((np.shape(X_test)[0], params['hidden_dim'] * 2))}
 
+    if 'checkpoint_path' in params.keys():
+        callbacks.append(mol_cb.EncoderDecoderCheckpoint(encoder, decoder,
+                params=params))
+
     AE_only_model.compile(loss=model_losses,
         loss_weights=[xent_loss_weight,
           kl_loss_var],
