@@ -7,6 +7,7 @@ def load_params(param_file=None, verbose=True):
 
         # for starting model from a checkpoint
         'reload_model': False,
+        'transfer_learn': False,
         'prev_epochs': 0,
         'SELFIES': False,
 
