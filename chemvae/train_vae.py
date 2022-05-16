@@ -132,42 +132,34 @@ def vectorize_data(params):
         sys.stdout.flush()
         selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+
+        if os.path.isfile(params['char_file']): # in case of transfer learning
+            selfies_alphabet = json.loads(open(params['char_file']).read())
+        else:
+            with open(params['char_file'], "w") as jf:
+                json.dump(selfies_alphabet, jf)
+                jf.write('\n')
+
         X = mu.multiple_selfies_to_hot(selfies_list, MAX_LEN,
                                        selfies_alphabet)
 
         params['NCHARS'] = len(selfies_alphabet)
 
-        if not os.path.isfile(params['char_file']):
-            with open(params['char_file'], "w") as jf:
-                json.dump(selfies_alphabet, jf)
-                jf.write('\n')
-        else: #union of existing alphabet with new dataset, in case of transfer learning
-            cur_chars = json.loads(open(params['char_file']).read())
-            new_alphabet = list(set(cur_chars).union(set(selfies_alphabet)))
-            with open(params['char_file'], "w") as jf:
-                json.dump(new_alphabet, jf)
-                jf.write('\n')
-
     else:
         _, _, _, smiles_list, smiles_alphabet, largest_smiles_len = \
             mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+
+        if os.path.isfile(params['char_file']): # in case of transfer learning
+            smiles_alphabet = json.loads(open(params['char_file']).read())
+        else:
+            with open(params['char_file'], "w") as jf:
+                json.dump(smiles_alphabet, jf)
+                jf.write('\n')
+
         X = mu.multiple_smile_to_hot(smiles_list, MAX_LEN,
                                      smiles_alphabet)
 
         params['NCHARS'] = len(smiles_alphabet)
-        if not os.path.isfile(params['char_file']):
-            with open(params['char_file'], "w") as jf:
-                json.dump(smiles_alphabet, jf)
-                jf.write('\n')
-        else: #union of existing alphabet with new dataset, in case of transfer learning
-            cur_chars = json.loads(open(params['char_file']).read())
-            new_alphabet = list(set(cur_chars).union(set(smiles_alphabet)))
-            with open(params['char_file'], "w") as jf:
-                json.dump(new_alphabet, jf)
-                jf.write('\n')
-
-    #sys.stdout.write('Total Data size ' + str(X.shape[0]))
-    #sys.stdout.flush()
 
     if np.shape(X)[0] % params['batch_size'] != 0:
         X = X[:np.shape(X)[0] // params['batch_size']
