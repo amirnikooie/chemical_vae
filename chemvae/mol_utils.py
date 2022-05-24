@@ -225,6 +225,8 @@ def hot_to_smiles(hot_x, alphabet, selfies): ## Changed to aplhabet. Work here..
         if selfies:  # if SELFIES, decode to SMILES
             temp_str = sf.decoder(temp_str)
         smiles.append(temp_str)
+        sys.stdout.write(temp_str)
+        sys.stdout.flush()
     return smiles
 
 

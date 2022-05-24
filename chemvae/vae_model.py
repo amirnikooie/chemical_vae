@@ -210,7 +210,7 @@ class VAE_Model(BBoxModel):
             z = mu.multiple_selfies_to_hot(selfies_list, p['MAX_LEN'],
                                            self.chars)
         else:
-            z = mu.multiple_selfies_to_hot(smiles, p['MAX_LEN'],
+            z = mu.multiple_smile_to_hot(smiles, p['MAX_LEN'],
                                            self.chars)
         return z
 
@@ -324,6 +324,21 @@ class VAE_Model(BBoxModel):
         smiles = self._hot_to_smiles(X, strip=False)
         df = self._prep_mol_df(smiles, z, verbose)
         return df
+
+    def sample_ls_to_smiles(self,
+                    z,
+                    num_samples=250,
+                    noise_norm=0.0,
+                    constant_norm=False,
+                    verified=True):
+        Z = np.tile(z, (num_samples, 1))
+        Z = self.perturb_z(Z, noise_norm)
+        X = self.decode(Z)
+        xhat = self._hot_to_smiles(X, strip=True)
+        if verified:
+            verflag = list(map(verify_smiles, xhat))
+            smiles = [s for i, s in enumerate(xhat) if verflag[i]==True]
+        return smiles
 
     def predict_prop_z(self, z, standardized=True):
         # Now reports predictions after un-normalization.
