@@ -4,6 +4,7 @@ import pickle as pkl
 from rdkit.Chem import AllChem as Chem
 import logging
 import selfies as sf
+import sys
 
 logging.getLogger('autoencoder')
 logging.getLogger().setLevel(20)
