@@ -220,9 +220,9 @@ def hot_to_smiles(hot_x, alphabet, selfies): ## Changed to aplhabet. Work here..
     for x in hot_x:
         temp_str = ''
         for j in x:
-            sys.stdoutwrite(str(j)+"\n")
+            sys.stdout.write(str(j)+"\n")
             index = np.argmax(j)
-            sys.stdoutwrite(str(index)+"***\n")
+            sys.stdout.write(str(index)+"***\n")
             temp_str += alphabet[index]
         temp_str = temp_str.replace(' ', '')
         if selfies:  # if SELFIES, decode to SMILES
