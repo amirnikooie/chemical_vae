@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras import backend as K
 from tensorflow.keras import Model, Input
-from .tgru_k2_gpu import TerminalGRU
+# from .tgru_k2_gpu import TerminalGRU
 
 
 # I added this class to replace Lambda layers that are used for sampling the latent space. In tf v2.x it is
