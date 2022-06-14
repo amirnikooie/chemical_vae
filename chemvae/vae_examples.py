@@ -7,16 +7,15 @@ model_DIR = "./aux_files/"
 vae = VAE_Model(directory=model_DIR)
 print("The VAE object created successfully!")
 
-'''
 #============
 """ Working with a sample smiles string to reconstruct it and predict its
     properties """
 
 sample_smiles = 'OC1=CC=C(C2=C(C3=CC=C(O)C=C3S2)N2C3=CC=C(C=C3C=C2)OCCN2CCCCC2)C=C1'
-z_rep = vae.smiles_to_z(sample_smiles, standardized=True)
-X_hat = vae.z_to_smiles(z_rep, standardized=True, verified=False) # decoding
+z_rep = vae.smiles_to_z(sample_smiles)
+X_hat = vae.z_to_smiles(z_rep, verified=False) # decoding
         # to molecular space without verifying its validity.
-predicted_props = vae.predict_prop_z(z_rep, standardized=True)
+predicted_props = vae.predict_prop_z(z_rep)
 
 print("### {:20s} : {}".format('Input', sample_smiles))
 print("### {:20s} : {}".format('Reconstruction', X_hat[0]))
@@ -30,11 +29,11 @@ print("### {:20s} : {}\n\n".format('Predicted properties', predicted_props))
 """ Property prediction for 20 samples from multivariate standard normal
     distribution """
 z_mat = np.random.normal(0, 1, size=(20,z_rep.shape[1]))
-pred_prop = vae.predict_prop_z(z_mat, standardized=True)
+pred_prop = vae.predict_prop_z(z_mat)
 
 #======================
 """ Converting those random representations to valid molecules """
-x_hat_list = vae.z_to_smiles(z_mat, standardized=True, verified=True) # decoding
+x_hat_list = vae.z_to_smiles(z_mat, verified=True) # decoding
             # to valid molecules
 verified_x_hat = [item for item in x_hat_list if item!='None']
 print("\n### {} out of 20 compounds are verified!".format(len(verified_x_hat)))
@@ -53,7 +52,6 @@ vae.save_gen_mols(df, cols_of_interest=['comp1','comp2','comp3'],
                   out_file="gen_mols.pdf", out_dir="./test_out/")
 
 #======================
-'''
 """ prediction performance analysis for a component of interest with option of
     drawing parity plot for that component """
 
@@ -61,10 +59,10 @@ vae.save_gen_mols(df, cols_of_interest=['comp1','comp2','comp3'],
 #input_data = string showing the location and name of the dataset to for
 #              prediction perfomance analysis. Could be the test set.
 
-filename = 'validation_set.csv' #'validation_set.csv'
-nsamples = 800 #600000
+filename = 'small_train.csv'
+nsamples = 4000 #600000
 
-rmses = vae.component_parity_check(model_DIR+filename, ssize=nsamples, seed=235,
+rmses = vae.component_parity_check(model_DIR+filename, ssize=nsamples, seed=435,
                                  histplot=True, parplot=True, hexbinp=False)
                                  #xlims=[0,1], ylims=[0,1])
 

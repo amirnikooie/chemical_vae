@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 import pickle as pk
 import matplotlib.pyplot as plt
-import selfies
 from tqdm import tqdm
 from fpdf import FPDF
 from chemvae import mol_utils as mu
@@ -23,13 +22,14 @@ from chemvae.mol_utils import fast_verify, verify_smiles
 from rdkit.Chem import AllChem as Chem
 from rdkit.Chem import PandasTools, Draw
 from rdkit import RDLogger
+import json
 
 from bbox_model import BBoxModel
 
 class VAE_Model(BBoxModel):
     # === STANDARD CONSTRUCTOR ===
     def __init__(self,
-                 exp_file='exp.json',
+                 exp_file,
                  encoder_file=None,
                  decoder_file=None,
                  directory=None):
@@ -56,13 +56,14 @@ class VAE_Model(BBoxModel):
         self.dec = load_decoder(self.params)
         self.encode, self.decode = self._enc_dec_functions()
         self.data = None
-        if self.params['do_prop_pred']:
+        if self.params['do_prop_pred_inf']:
             self.property_predictor = load_property_predictor(self.params)
+        # normalization step if it's once done.
+
+        '''
         sys.stdout.write("Standardization of latent space...")
         sys.stdout.flush()  # for printing messages inside the function.
         normal_file = "normalization_info.pkl" # for preventing time-consuming
-        # normalization step if it's once done.
-
         if os.path.isfile(normal_file):
             d_nor = pk.load(open(normal_file,'rb'))
             self.mu = d_nor['mu']
@@ -84,13 +85,14 @@ class VAE_Model(BBoxModel):
                 pk.dump(d_nor, n_file)
         sys.stdout.write('done\n')
         sys.stdout.flush()
+        '''
 
         if directory is not None:
             os.chdir(curdir)
         return
 
     # === AUXILIARY METHODS ===
-    def _enc_dec_functions(self, standardized=True):
+    def _enc_dec_functions(self, standardized=False):
         print('Using standardized representations? {}'.format(standardized))
         if not self.params['do_tgru']:
             def decode(z, standardized=standardized):
@@ -144,7 +146,8 @@ class VAE_Model(BBoxModel):
             df = df[['smiles', 'distance', 'count', 'frequency', 'mol']]
             df.sort_values(by='distance', inplace=True)
             df.reset_index(drop=True, inplace=True)
-            df = self._get_props_for_samples(df)
+            if self.params['do_prop_pred_inf']:
+                df = self._get_props_for_samples(df)
         return df
 
     def _get_props_for_samples(self, mol_dataframe):
@@ -167,7 +170,6 @@ class VAE_Model(BBoxModel):
         return df
 
     def _predict_property_function(self):
-        # Now reports predictions after un-normalization.
         def predict_prop(X):
             # both regression and logistic
             if (('reg_prop_tasks' in self.params) and
@@ -239,49 +241,111 @@ class VAE_Model(BBoxModel):
             yield l[i:i + n]
 
     # === MANIPULATION METHODS ===
+    '''
     def estimate_standardization(self):
         # sample Z space
 
-        ssize = int(self.data_size * 0.66)
+        ssize = int(self.data_size * 0.80)
         smiles = self._random_molecules(size=ssize)
-        batch = int(ssize/200)
+        batch = 8#int(ssize/200)
         Z = np.zeros((len(smiles), self.params['hidden_dim']))
         for chunk in self.chunks(list(range(len(smiles))), batch):
             sub_smiles = [smiles[i] for i in chunk]
+            #print(len(sub_smiles))
             one_hot = self._smiles_to_hot(sub_smiles, self.params['SELFIES'])
+            #print(len(chunk))
+            #print(one_hot.shape)
+            #print("****")
             Z[chunk, :] = self.encode(one_hot, False)
 
         self.mu = np.mean(Z, axis=0)
         self.std = np.std(Z, axis=0)
         self.Z = self.standardize_z(Z)
         return
-
+    '''
     # === PROPERTY EVALUATION METHODS ===
+    def alphabet_generator(self, smiles, out_file):
+        if self.params['SELFIES']:
+            sys.stdout.write('Translating to SELFIES...')
+            sys.stdout.flush()
+            selfies_list, selfies_alphabet, largest_selfies_len, _, _, _ = \
+                mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+
+            with open(out_file, "w") as jf:
+                json.dump(selfies_alphabet, jf)
+                jf.write('\n')
+
+        else:
+            _, _, _, smiles_list, smiles_alphabet, largest_smiles_len = \
+                mu.get_selfie_and_smiles_encodings_for_dataset(smiles)
+
+            with open(out_file, "w") as jf:
+                json.dump(smiles_alphabet, jf)
+                jf.write('\n')
+        sys.stdout.write('done!' + '\n' +
+                    'alphabets file for given smiles generated successfully!\n')
+        sys.stdout.flush()
+        return
+
+    '''
     def standardize_z(self, z):
         return (z - self.mu) / self.std
 
     def unstandardize_z(self, z):
         return (z * self.std) + self.mu
-
-    def smiles_to_z(self, smiles, standardized=True):
+    '''
+    def smiles_to_z(self, smiles, standardized=False):
         x = self._smiles_to_hot(smiles, self.params['SELFIES'])
         z_rep = self.encode(x, standardized)
         return z_rep
 
-    def z_to_smiles(self, z, standardized=True, verified=True):
+    def z_to_smiles(self, z, standardized=False, verified=True, only_valid=False):
         s_hot = self.decode(z, standardized)
         x_hat = self._hot_to_smiles(s_hot, strip=True)
         if verified:
-            verflag = map(verify_smiles, x_hat)
-            x_hat = list(map(lambda a, b: a if b==True else None,
-                             x_hat, verflag))
-        return x_hat
+            if only_valid:
+                verflag = list(map(verify_smiles, x_hat))
+                smiles = [s for i, s in enumerate(x_hat) if verflag[i]==True]
+            else:
+                verflag = map(verify_smiles, x_hat)
+                smiles = list(map(lambda a, b: a if b==True else None,
+                                 x_hat, verflag))
+        else:
+            smiles = x_hat
+        return smiles
 
-    def smiles_to_prop(self, smiles, standardized=True):
+    def smiles_to_prop(self, smiles, standardized=False):
         z_mat = self.smiles_to_z(smiles, standardized)
         pred_prop_all = self.predict_prop_z(z_mat)
         return pred_prop_all
 
+    def smiles_distance_z(self, smiles, z0):
+        x = self._smiles_to_hot(smiles, self.params['SELFIES'])
+        z_rep = self.encode(x)
+        return np.linalg.norm(z0 - z_rep, axis=1)
+
+    def sample_around_z(self, zrep, size, noise_std=1, constant_norm=False,
+                        to_smiles=False):
+        nDim = self.ls_dim
+        if constant_norm:
+            newz = np.random.multivariate_normal(mean=zrep,
+                                                 cov=noise_std*np.eye(nDim),
+                                                 size = size)
+        else:
+            noise = np.random.uniform(0, noise_std, size)
+            newz1 = np.random.multivariate_normal(mean=np.zeros(nDim),
+                                                 cov=np.eye(nDim),
+                                                 size = size)
+            newz2 = newz1 * noise[:,np.newaxis]
+            newz = zrep + newz2
+
+        if to_smiles:
+            smiles = self.z_to_smiles(newz)
+            return smiles
+        else:
+            return newz
+
+    '''
     def perturb_z(self, z, noise_norm, constant_norm=False):
         if noise_norm > 0.0:
             noise_vec = np.random.normal(0, 1, size=z.shape)
@@ -294,12 +358,6 @@ class VAE_Model(BBoxModel):
                 return z + (noise_amp * noise_vec)
         else:
             return z
-
-    def smiles_distance_z(self, smiles, z0):
-        x = self._smiles_to_hot(smiles, self.params['SELFIES'])
-        z_rep = self.encode(x)
-        return np.linalg.norm(z0 - z_rep, axis=1)
-
     def sample_and_dec_to_smiles(self,
                     z,
                     decode_attempts=250,
@@ -334,13 +392,14 @@ class VAE_Model(BBoxModel):
         Z = np.tile(z, (num_samples, 1))
         Z = self.perturb_z(Z, noise_norm)
         X = self.decode(Z)
+
         xhat = self._hot_to_smiles(X, strip=True)
         if verified:
             verflag = list(map(verify_smiles, xhat))
             smiles = [s for i, s in enumerate(xhat) if verflag[i]==True]
         return smiles
-
-    def predict_prop_z(self, z, standardized=True):
+    '''
+    def predict_prop_z(self, z, standardized=False):
         # Now reports predictions after un-normalization.
         if standardized:
             z = self.unstandardize_z(z)
@@ -497,7 +556,8 @@ class VAE_Model(BBoxModel):
                 if hexbinp:
                     plt.hexbin(obs_comp, pred_comp, gridsize = 15, cmap ='Blues')
                 else:
-                    plt.scatter(obs_comp, pred_comp, s=30)
+                    plt.scatter(obs_comp, pred_comp, s=30, facecolors='none',
+                                edgecolors='dodgerblue')
                 plt.plot(obs_comp,obs_comp,linewidth=1.25, color='red')
                 plt.title("Parity plot for " + component)
                 plt.xlabel("Observed " + component)

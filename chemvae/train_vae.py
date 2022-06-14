@@ -331,7 +331,7 @@ def main_no_prop(params):
 
     if 'checkpoint_path' in params.keys():
         callbacks.append(mol_cb.EncoderDecoderCheckpoint(encoder, decoder,
-                params=params))
+                params=params,save_best_only=False))
 
     AE_only_model.compile(loss=model_losses,
         loss_weights=[xent_loss_weight,
